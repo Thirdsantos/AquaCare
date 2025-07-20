@@ -42,12 +42,12 @@ Base URL:
 
 ## Endpoints
 ## POST /<aquarium_id>/sensors
--Description:
+- Description:
 Receives real-time sensor data from an aquarium. The backend checks if any values exceed safe thresholds and stores the data in Firebase under the provided aquarium_id.
 
 Request Parameters:
 
-**aquarium_id (URL path)**: Unique ID for the aquarium (e.g., tank01)
+aquarium_id (URL path): Unique ID for the aquarium (e.g., tank01)
 
 Request Body (JSON):
 
@@ -69,7 +69,7 @@ Response (JSON):
 }
 ---
 ## POST /<aquarium_id>/hourly_log
--Description:
+- Description:
 Logs sensor data once per hour to Firebase for long-term analytics. It also checks thresholds just like the real-time endpoint.
 
 Request Parameters:
@@ -91,7 +91,7 @@ Response (JSON):
 ---
 
 ## POST /ask
--Description:
+- Description:
 Sends either a text question, an image, or both to the AI (Gemini) model. The AI responds with a smart analysis or explanation — for example, interpreting water quality from an image.
 
 Request Body (JSON):
