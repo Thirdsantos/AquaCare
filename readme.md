@@ -6,26 +6,26 @@ The system features a **Flask-based backend** that receives sensor data from ESP
 
 ---
 
-## 🚀 Features
+##  Features
 
-- 📡 **Sensor Data Handling**  
+- **Sensor Data Handling**  
   Accepts real-time data from aquarium sensors via API endpoints.
 
-- ⚠️ **Threshold Monitoring & Alerts**  
+- **Threshold Monitoring & Alerts**  
   Automatically checks if sensor values exceed critical levels and sends FCM push notifications.
 
-- 📊 **Hourly and Daily Analytics**  
+- **Hourly and Daily Analytics**  
   Calculates and stores aggregated data (pH, temperature, turbidity) per hour and per day.
 
-- 🤖 **AI Chatbot**  
+- **AI Chatbot**  
   Users can interact with an AI chatbot to ask questions about current or historical aquarium status.
 
-- 🔄 **Firebase Realtime Database Integration**  
+- **Firebase Realtime Database Integration**  
   Stores sensor logs and analytics with real-time data retrieval support.
 
 ---
 
-## 🛠️ Technologies Used
+## Technologies Used
 
 - **Python** – Backend language  
 - **Flask** – REST API framework  
