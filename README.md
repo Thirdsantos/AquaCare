@@ -80,14 +80,16 @@ Request Body:
 
 ```json
 {
-  ph: 6.8
-  temperature: 26.3
-  turbidity: 98
+  "ph": 7.2,
+  "temperature": 27.5,
+  "turbidity": 120
 }
 ```
 Response:
 ```json
-Message: Successful
+{
+  "Message": "Successful"
+}
 ```
 
 ### POST /ask
@@ -97,14 +99,14 @@ Request Body:
 ```json
 {
   "question": "Is the water still good for my fish?"
-  "image" : base64
+  "image" : "base64"
 }
 ```
 
 Response:
 ```json
 {
-  "AI_Response: response
+  "AI_Response": "response"
 }
 
 
