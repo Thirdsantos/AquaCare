@@ -58,9 +58,7 @@ Request Body (JSON):
 }
 Response (JSON):
 
-json
-Copy
-Edit
+
 {
   "Message": "Successfully recieved",
   "Data": {
@@ -87,9 +85,6 @@ Request Body (JSON):
 }
 Response (JSON):
 
-json
-Copy
-Edit
 {
   "Message": "Sucessful"
 }
