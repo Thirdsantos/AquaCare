@@ -1,118 +1,111 @@
 # AquaCare: Smart Aquarium Monitoring System
 
-AquaCare is a smart aquarium monitoring system that tracks and manages key environmental parameters — including **pH**, **temperature**, and **turbidity** — to ensure a healthy aquatic environment.
+**AquaCare** is a smart aquarium monitoring system designed to track and manage key environmental parameters — including **pH**, **temperature**, and **turbidity** — to ensure a healthy aquatic environment.
 
-The system features a **Flask-based backend** that receives sensor data from ESP32, stores logs in **Firebase Realtime Database**, sends alerts through **Firebase Cloud Messaging (FCM)**, and includes AI chatbot support to answer user queries. It also calculates **hourly and daily analytics** to help users monitor trends over time.
+The system features a **Flask-based backend** that receives sensor data from ESP32, stores logs in **Firebase Realtime Database**, sends alerts through **Firebase Cloud Messaging (FCM)**, and includes AI chatbot support for user queries. It also computes **hourly and daily analytics** for long-term monitoring.
 
 ---
 
-##  Features
+## Features
 
 - **Sensor Data Handling**  
   Accepts real-time data from aquarium sensors via API endpoints.
 
 - **Threshold Monitoring & Alerts**  
-  Automatically checks if sensor values exceed critical levels and sends FCM push notifications.
+  Automatically detects abnormal values and sends push notifications via FCM.
 
 - **Hourly and Daily Analytics**  
-  Calculates and stores aggregated data (pH, temperature, turbidity) per hour and per day.
+  Aggregates and stores pH, temperature, and turbidity data per hour and per day.
 
-- **AI Chatbot**  
-  Users can interact with an AI chatbot to ask questions about current or historical aquarium status.
+- **AI Chatbot Integration**  
+  Allows users to ask questions about water quality using natural language or image input.
 
-- **Firebase Realtime Database Integration**  
-  Stores sensor logs and analytics with real-time data retrieval support.
+- **Firebase Integration**  
+  Real-time logging of sensor values and computed analytics.
 
 ---
 
 ## Technologies Used
 
-- **Python** – Backend language  
+- **Python** – Backend development  
 - **Flask** – REST API framework  
-- **Firebase Realtime Database** – Cloud-based JSON database  
-- **Firebase Cloud Messaging (FCM)** – Real-time push notification system  
+- **Firebase Realtime Database** – NoSQL cloud database  
+- **Firebase Cloud Messaging (FCM)** – Push notification service  
+- **Gemini API** – For AI question/answering and image analysis
 
 ---
 
-## AquaCare API Documentation
-Base URL:
-**https://aquacare-5cyr.onrender.com**
+## API Documentation
+
+### Base URL
+
+https://aquacare-5cyr.onrender.com
+
 
 ---
 
-## Endpoints
-## POST /<aquarium_id>/sensors
-- Description:
-Receives real-time sensor data from an aquarium. The backend checks if any values exceed safe thresholds and stores the data in Firebase under the provided aquarium_id.
+### `POST /<aquarium_id>/sensors`
 
-Request Parameters:
+Receives real-time sensor data from an aquarium. It stores the data in Firebase under the specified aquarium ID and checks for threshold violations to send alerts if necessary.
 
-aquarium_id (URL path): Unique ID for the aquarium (e.g., tank01)
+**Path Parameter:**
 
-Request Body (JSON):
+- `aquarium_id` — Unique identifier for the aquarium (e.g., `tank01`)
 
+**Request Body:**
+
+```json
 {
   "ph": 7.2,
   "temperature": 27.5,
   "turbidity": 120
 }
-Response (JSON):
-
-
 {
-  "Message": "Successfully recieved",
+  "Message": "Successfully received",
   "Data": {
     "ph": 7.2,
     "temperature": 27.5,
     "turbidity": 120
   }
 }
----
-## POST /<aquarium_id>/hourly_log
-- Description:
-Logs sensor data once per hour to Firebase for long-term analytics. It also checks thresholds just like the real-time endpoint.
+```
+### `POST /<aquarium_id>/hourly_log`
+Stores hourly sensor data into Firebase for long-term analytics. It performs the same threshold checks as the real-time endpoint.
 
-Request Parameters:
+**Path Parameter:**
 
-aquarium_id (URL path): Aquarium ID to log data under
+- `aquarium_id` — Unique identifier for the aquarium (e.g., `tank01`)
 
-Request Body (JSON):
+Request Body:
 
+```json
 {
-  "ph": 6.8,
-  "temperature": 26.3,
-  "turbidity": 98
+  ph: 6.8
+  temperature: 26.3
+  turbidity: 98
 }
-Response (JSON):
+```
+Response:
+```json
+Message: Successful
+```
 
+### POST /ask
+
+Request Body:
+
+```json
 {
-  "Message": "Sucessful"
+  "question": "Is the water still good for my fish?"
+  "image" : base64
 }
----
+```
 
-## POST /ask
-- Description:
-Sends either a text question, an image, or both to the AI (Gemini) model. The AI responds with a smart analysis or explanation — for example, interpreting water quality from an image.
-
-Request Body (JSON):
-
+Response:
+```json
 {
-  "question": "What does high turbidity mean?",
-  "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD..."
+  "AI_Response: response
 }
 
- You may send:
-
-Just question
-
-Just image (as Base64)
-
-Or both
-
-Response (JSON):
-
-{
-  "AI_Response": "High turbidity usually means the water is murky, which may be harmful to aquatic life."
-}
 
 
