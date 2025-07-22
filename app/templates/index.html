@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Welcome to AquaCare</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: linear-gradient(to bottom, #0f172a, #1e293b);
+    }
+    .wave {
+      animation: wave 4s infinite ease-in-out;
+    }
+
+    @keyframes wave {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+  </style>
+</head>
+<body class="flex items-center justify-center h-screen text-white font-sans">
+  <div class="text-center">
+    <h1 class="text-5xl font-bold wave text-cyan-400 drop-shadow-lg">Welcome to AquaCare</h1>
+    <p class="mt-4 text-lg text-cyan-100">Your smart aquarium assistant is ready!</p>
+  </div>
+</body>
+</html>
