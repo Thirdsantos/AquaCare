@@ -50,7 +50,7 @@ Receives real-time sensor data from an aquarium. It stores the data in Firebase 
 
 **Path Parameter:**
 
-- `aquarium_id` — Unique identifier for the aquarium (e.g., `tank01`)
+- `aquarium_id` — Unique identifier for the aquarium (e.g., `1`)
 
 **Request Body:**
 
@@ -60,6 +60,7 @@ Receives real-time sensor data from an aquarium. It stores the data in Firebase 
   "temperature": 27.5,
   "turbidity": 120
 }
+
 {
   "Message": "Successfully received",
   "Data": {
@@ -74,7 +75,7 @@ Stores hourly sensor data into Firebase for long-term analytics. It performs the
 
 **Path Parameter:**
 
-- `aquarium_id` — Unique identifier for the aquarium (e.g., `tank01`)
+- `aquarium_id` — Unique identifier for the aquarium (e.g., `1`)
 
 Request Body:
 
