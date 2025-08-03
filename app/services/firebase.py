@@ -40,7 +40,8 @@ def initialize_data_firebase(aquarium_id):
         },
         "average": {
             "index": 0
-        }
+        },
+        "name" : f"New Aquarium {aquarium_id}"
     }
 
     if not root.get():
