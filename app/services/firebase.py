@@ -28,21 +28,22 @@ def initialize_data_firebase(aquarium_id):
         "hourly_log": {
             "index": 0
         },
-        "notification": {
+        "notification": { 
+            "state_flag": {"ph": True, "temperature": True, "turbidity": True},
             "ph": False,
             "temperature": False,
             "turbidity": False
         },
         "threshold": {
-            "ph": { "max": 0, "min": 0 },
-            "temperature": { "max": 0, "min": 0 },
-            "turbidity": { "max": 0, "min": 0 }
+            "ph": {"max": 0, "min": 0},
+            "temperature": {"max": 0, "min": 0},
+            "turbidity": {"max": 0, "min": 0}
         },
         "average": {
             "index": 0
         },
-        "name" : f"New Aquarium {aquarium_id}",
-        "aquarium_id" : aquarium_id
+        "name": f"New Aquarium {aquarium_id}",
+        "aquarium_id": aquarium_id
     }
 
     if not root.get():
@@ -145,39 +146,59 @@ def notification_checker(aquarium_id, sensor):
     ref = FirebaseReference(aquarium_id)
     return ref.get_ref(f"notification/{sensor}").get()
 
+
 def check_threshold(aquarium_id, data):
-  ph_notification = notification_checker(aquarium_id, "ph")
-  temperature_notification = notification_checker(aquarium_id, "temperature")
-  turbidity_notification = notification_checker(aquarium_id, "turbidity")
-  ref = FirebaseReference(aquarium_id)
-  threshold = ref.get_ref("threshold").get()
+    ph_notification = notification_checker(aquarium_id, "ph")
+    temperature_notification = notification_checker(aquarium_id, "temperature")
+    turbidity_notification = notification_checker(aquarium_id, "turbidity")
 
-  # Check pH
-  if ph_notification:
-    ph = data["ph"]
-    ph_min = threshold["ph"]["min"]
-    ph_max = threshold["ph"]["max"]
+    ref = FirebaseReference(aquarium_id)
+    threshold = ref.get_ref("threshold").get()
+    state_flag_ref = ref.get_ref("notification/state_flag")
+    state_flag = state_flag_ref.get()
 
-    if ph < ph_min or ph > ph_max:
-      send_fcm_notification(aquarium_id, "pH")
+    ph_flag = state_flag["ph"]
+    turbidity_flag = state_flag["turbidity"]
+    temperature_flag = state_flag["temperature"]
 
-  # Check temperature
-  if temperature_notification:
-    temperature = data["temperature"]
-    temperature_min = threshold["temperature"]["min"]
-    temperature_max = threshold["temperature"]["max"]
+    # Check pH
+    if ph_notification:
+        ph = data["ph"]
+        ph_min = threshold["ph"]["min"]
+        ph_max = threshold["ph"]["max"]
 
-    if temperature < temperature_min or temperature > temperature_max:
-      send_fcm_notification(aquarium_id, "Temperature")
+        if ph < ph_min or ph > ph_max:
+            if not ph_flag:
+                send_fcm_notification(aquarium_id, "pH")
+                state_flag_ref.child("ph").set(True)
+        else:
+            if ph_flag:
+                state_flag_ref.child("ph").set(False)
 
-  # Check turbidity
-  if turbidity_notification:
-    turbidity = data["turbidity"]
-    turbidity_min = threshold["turbidity"]["min"]
-    turbidity_max = threshold["turbidity"]["max"]
+    # Check temperature
+    if temperature_notification:
+        temperature = data["temperature"]
+        temperature_min = threshold["temperature"]["min"]
+        temperature_max = threshold["temperature"]["max"]
 
-    if turbidity < turbidity_min or turbidity > turbidity_max:
-      send_fcm_notification(aquarium_id, "Turbidity")
-        
+        if temperature < temperature_min or temperature > temperature_max:
+            if not temperature_flag:
+                send_fcm_notification(aquarium_id, "Temperature")
+                state_flag_ref.child("temperature").set(True)
+        else:
+            if temperature_flag:
+                state_flag_ref.child("temperature").set(False)
 
-            
+    # Check turbidity
+    if turbidity_notification:
+        turbidity = data["turbidity"]
+        turbidity_min = threshold["turbidity"]["min"]
+        turbidity_max = threshold["turbidity"]["max"]
+
+        if turbidity < turbidity_min or turbidity > turbidity_max:
+            if not turbidity_flag:
+                send_fcm_notification(aquarium_id, "Turbidity")
+                state_flag_ref.child("turbidity").set(True)
+        else:
+            if turbidity_flag:
+                state_flag_ref.child("turbidity").set(False)
