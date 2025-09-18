@@ -29,7 +29,7 @@ def initialize_data_firebase(aquarium_id):
             "index": 0
         },
         "notification": { 
-            "state_flag": {"ph": True, "temperature": True, "turbidity": True},
+            "state_flag": {"ph": False, "temperature": False, "turbidity": False},
             "ph": False,
             "temperature": False,
             "turbidity": False
