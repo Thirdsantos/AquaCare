@@ -212,8 +212,11 @@ Retrieves all feeding schedules for a given aquarium.
 
 **Response:**
 
+With active Schedules
+
 ```json
 {
+  "status": "success",
   "schedules": [
     {
       "time": "08:30",
@@ -223,9 +226,19 @@ Retrieves all feeding schedules for a given aquarium.
     {
       "time": "18:00",
       "cycle": 1,
-      "switch": false
+      "switch": true
     }
   ]
+}
+
+```
+
+No active Schedules
+
+```json
+{
+  "status": "empty",
+  "schedules": []
 }
 ```
 
