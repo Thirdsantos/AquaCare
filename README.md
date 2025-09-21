@@ -2,7 +2,7 @@
 
 **AquaCare** is a smart aquarium monitoring system designed to track and manage key environmental parameters — including **pH**, **temperature**, and **turbidity** — to ensure a healthy aquatic environment.
 
-The system features a **Flask-based backend** that receives sensor data from ESP32, stores logs in **Firebase Realtime Database**, sends alerts through **Firebase Cloud Messaging (FCM)**, and includes AI chatbot support for user queries. It also computes **hourly and daily analytics** for long-term monitoring.
+The system features a **Flask-based backend** that receives sensor data from Raspberry pi, stores logs in **Firebase Realtime Database**, sends alerts through **Firebase Cloud Messaging (FCM)**, and includes AI chatbot support for user queries. It also computes **hourly and daily analytics** for long-term monitoring. Also have a Food dispense scheduling.
 
 ---
 
