@@ -43,7 +43,8 @@ def initialize_data_firebase(aquarium_id):
             "index": 0
         },
         "name": f"New Aquarium {aquarium_id}",
-        "aquarium_id": aquarium_id
+        "aquarium_id": aquarium_id,
+        "auto_feeder" : { "schedule" : {}} 
     }
 
     if not root.get():
@@ -202,3 +203,163 @@ def check_threshold(aquarium_id, data):
         else:
             if turbidity_flag:
                 state_flag_ref.child("turbidity").set(False)
+
+def get_schedule_firebase(aquarium_id: int) -> list:
+    '''Get the active (enabled) feeding schedules of the auto feeder.
+    
+    This function retrieves all schedules of the auto feeder and filters out
+    only those where "switch" is set to True.
+
+    Args:
+        aquarium_id (int): The ID of the aquarium.
+
+    Returns:
+        list: A list of dictionaries containing the active schedules, each with:
+            - "time" (str): Feeding time.
+            - "cycle" (int): Feeding cycle/amount.
+            - "switch" (bool): Whether the schedule is active.
+    '''
+    ref = FirebaseReference(aquarium_id)
+    ref_schedule = ref.get_ref("auto_feeder/schedule")
+    schedule_value = ref_schedule.get() or {}
+
+    active_schedules = []
+
+    for key, value in schedule_value.items():
+        if value.get("switch"):  # only add if switch == True
+            active_schedules.append(value)
+
+    return active_schedules
+
+
+
+
+def add_schedule_firebase(aquarium_id: int, schedule: dict) -> dict:
+    """Add a new feeding schedule to Firebase if it does not already exist.
+
+    This function checks for duplicate feeding times in the aquarium's
+    auto-feeder schedule. If the time does not exist, it adds a new schedule
+    entry. If it already exists, it skips insertion.
+
+    Args:
+        aquarium_id (int): The unique identifier of the aquarium.
+        schedule (dict): A dictionary containing schedule details with keys:
+            - "time" (str): Feeding time in HH:MM format.
+            - "cycle" (int): Amount or cycle number for feeding.
+            - "switch" (bool) : Tells if the alarm is on or off
+
+    Returns:
+        dict: A dictionary containing the operation result with keys:
+            - "status" (str): Either "added" or "duplicate".
+            - "time" (str): The feeding time provided.
+            - "cycle" (int, optional): Returned only if added.
+            - "switch" (bool): Tell if it's on or off
+    """
+    ref = FirebaseReference(aquarium_id)
+    ref_schedule = ref.get_ref("auto_feeder")
+    schedule_ref = ref_schedule.child("schedule")
+    current_schedules = schedule_ref.get() or {}
+
+    new_time = schedule["time"]
+    cycle = schedule["cycle"]
+    switch = schedule["switch"]
+    duplicate = False
+
+    for key, value in current_schedules.items():
+        if value["time"] == new_time:
+            duplicate = True
+            break
+
+    if not duplicate:
+        schedule_ref.push({"time": new_time, "cycle" : cycle, "switch" : switch})
+        return {"status": "added", "time": new_time, "cycle": cycle, "switch" : switch}
+    else:
+        return {"status": "duplicate", "time": new_time, "switch" : switch}
+
+
+def set_on_off_schedule_firebase(aquarium_id : int, switch : bool, time: str) -> dict:
+    """Update the on/off switch of a feeding schedule in Firebase.
+
+    This function finds a schedule by its feeding time and updates its
+    switch value (enabled/disabled).
+
+    Args:
+        aquarium_id (int): The unique identifier of the aquarium.
+        switch (bool): The new state of the schedule (True for on, False for off).
+        time (str): Feeding time in HH:MM format.
+
+    Returns:
+        dict: A dictionary containing the operation result with keys:
+            - "status" (str): Either "updated" or "not_found".
+            - "time" (str): The feeding time requested.
+            - "enabled" (bool, optional): The new switch value if updated.
+    """
+    ref = FirebaseReference(aquarium_id)
+    switch_ref = ref.get_ref("auto_feeder/schedule")
+    switch_value = switch_ref.get() 
+
+    for key, value in switch_value.items():
+        if value["time"] == time:
+            key_ref = ref.get_ref(f"auto_feeder/schedule/{key}")
+            key_ref.update({"switch" : switch})
+
+            return {"status": "updated", "time": time, "enabled": switch}
+        
+    return {"status": "not_found", "time": time}
+
+
+def change_cycle_schedule_firebase(aquarium_id : int, time: str, cycle : int) -> dict:
+    """Update the feeding cycle of a schedule in Firebase.
+
+    This function finds a schedule by its feeding time and updates its
+    cycle value (amount or cycle number).
+
+    Args:
+        aquarium_id (int): The unique identifier of the aquarium.
+        time (str): Feeding time in HH:MM format.
+        cycle (int): The new cycle value to set.
+
+    Returns:
+        dict: A dictionary containing the operation result with keys:
+            - "status" (str): Either "updated" or "not_found".
+            - "time" (str): The feeding time requested.
+            - "cycle" (int, optional): The new cycle value if updated.
+    """
+    ref = FirebaseReference(aquarium_id)
+    cycle_ref = ref.get_ref("auto_feeder/schedule")
+    cycle_value = cycle_ref.get()
+
+    for key, value in cycle_value.items():
+        if value["time"] == time:
+            key_ref = cycle_ref.child(key)
+            key_ref.update({"cycle" : cycle})
+
+            return {"status": "updated", "time": time, "cycle": cycle}
+    return {"status" : "not found", "time" : time}
+
+
+def delete_schedule_firebase(aquarium_id: int, time: str) -> dict:
+    """Delete a feeding schedule in Firebase by its time.
+
+    Args:
+        aquarium_id (int): The unique identifier of the aquarium.
+        time (str): Feeding time in HH:MM format.
+
+    Returns:
+        dict: A dictionary containing the operation result with keys:
+            - "status" (str): Either "deleted" or "not_found".
+            - "time" (str): The feeding time requested for deletion.
+    """
+    ref = FirebaseReference(aquarium_id)
+    schedule_ref = ref.get_ref("auto_feeder/schedule")
+    schedules = schedule_ref.get() or {}
+
+    for key, value in schedules.items():
+        if value.get("time") == time:  
+            schedule_ref.child(key).delete()
+            return {"status": "deleted", "time": time}
+
+    return {"status": "not_found", "time": time}
+
+
+
