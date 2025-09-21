@@ -109,6 +109,125 @@ Response:
 {
   "AI_Response": "response"
 }
+```
 
+---
 
+## Schedule Management API
+
+### `POST /add_schedule/<aquarium_id>`
+
+Adds a new feeding schedule for the specified aquarium. The schedule includes feeding time, cycle amount, and an enable/disable switch.
+
+**Path Parameter:**
+
+- `aquarium_id` — Unique identifier for the aquarium (e.g., `1`)
+
+**Request Body:**
+
+```json
+{
+  "time": "08:30",
+  "cycle": 2,
+  "switch": true
+}
+```
+
+**Response:**
+
+```json
+{
+  "status": "success",
+  "time": "08:30",
+  "cycle": 2,
+  "switch": true
+}
+```
+
+### `DELETE /delete_schedule/<aquarium_id>/<time>`
+
+Deletes a specific feeding schedule by time for the given aquarium.
+
+**Path Parameters:**
+
+- `aquarium_id` — Unique identifier for the aquarium (e.g., `1`)
+- `time` — Feeding time in HH:MM format (e.g., `08:30`)
+
+**Response:**
+
+```json
+{
+  "status": "success",
+  "time": "08:30"
+}
+```
+
+### `PATCH /update_schedule_cycle/<aquarium_id>/<time>/<cycle>`
+
+Updates the cycle value (feeding amount) of an existing feeding schedule.
+
+**Path Parameters:**
+
+- `aquarium_id` — Unique identifier for the aquarium (e.g., `1`)
+- `time` — Feeding time in HH:MM format (e.g., `08:30`)
+- `cycle` — New cycle value (e.g., `3`)
+
+**Response:**
+
+```json
+{
+  "status": "success",
+  "time": "08:30",
+  "cycle": 3
+}
+```
+
+### `PATCH /update_schedule_switch/<aquarium_id>/<time>/<switch>`
+
+Updates the switch state (enable/disable) of an existing feeding schedule.
+
+**Path Parameters:**
+
+- `aquarium_id` — Unique identifier for the aquarium (e.g., `1`)
+- `time` — Feeding time in HH:MM format (e.g., `08:30`)
+- `switch` — Switch state as string (`true`, `false`, `1`, `0`, etc.)
+
+**Response:**
+
+```json
+{
+  "status": "success",
+  "time": "08:30",
+  "enabled": true
+}
+```
+
+### `GET /get_schedules/<aquarium_id>`
+
+Retrieves all feeding schedules for a given aquarium.
+
+**Path Parameter:**
+
+- `aquarium_id` — Unique identifier for the aquarium (e.g., `1`)
+
+**Response:**
+
+```json
+{
+  "schedules": [
+    {
+      "time": "08:30",
+      "cycle": 2,
+      "switch": true
+    },
+    {
+      "time": "18:00",
+      "cycle": 1,
+      "switch": false
+    }
+  ]
+}
+```
+
+---
 
