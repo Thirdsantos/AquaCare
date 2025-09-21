@@ -204,7 +204,7 @@ def check_threshold(aquarium_id, data):
             if turbidity_flag:
                 state_flag_ref.child("turbidity").set(False)
 
-def get_schedule_firebase(aquarium_id: int) -> list:
+def get_schedule_firebase(aquarium_id: int) -> dict:
     '''Get the active (enabled) feeding schedules of the auto feeder.
     
     This function retrieves all schedules of the auto feeder and filters out
@@ -214,22 +214,20 @@ def get_schedule_firebase(aquarium_id: int) -> list:
         aquarium_id (int): The ID of the aquarium.
 
     Returns:
-        list: A list of dictionaries containing the active schedules, each with:
-            - "time" (str): Feeding time.
-            - "cycle" (int): Feeding cycle/amount.
-            - "switch" (bool): Whether the schedule is active.
+        dict: Contains:
+            - "status" (str): "success" or "empty"
+            - "schedules" (list): List of active schedules (if any)
     '''
     ref = FirebaseReference(aquarium_id)
     ref_schedule = ref.get_ref("auto_feeder/schedule")
     schedule_value = ref_schedule.get() or {}
 
-    active_schedules = []
+    active_schedules = [v for v in schedule_value.values() if v.get("switch")]
 
-    for key, value in schedule_value.items():
-        if value.get("switch"):  # only add if switch == True
-            active_schedules.append(value)
+    if not active_schedules:
+        return {"status": "empty", "schedules": []}
+    return {"status": "success", "schedules": active_schedules}
 
-    return active_schedules
 
 
 
