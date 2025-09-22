@@ -222,7 +222,11 @@ def get_schedule_firebase(aquarium_id: int) -> dict:
     ref_schedule = ref.get_ref("auto_feeder/schedule")
     schedule_value = ref_schedule.get() or {}
 
-    active_schedules = [v for v in schedule_value.values() if v.get("switch")]
+    active_schedules = []
+
+    for v in schedule_value.values():
+        if v.get("switch"):
+            active_schedules.append({"time": v.get("time"), "food" : v.get("food")})
 
     if not active_schedules:
         return {"status": "empty", "schedules": []}
@@ -245,6 +249,7 @@ def add_schedule_firebase(aquarium_id: int, schedule: dict) -> dict:
             - "time" (str): Feeding time in HH:MM format.
             - "cycle" (int): Amount or cycle number for feeding.
             - "switch" (bool) : Tells if the alarm is on or off
+            - "food" (str) : Tells what type of food for the fish
 
     Returns:
         dict: A dictionary containing the operation result with keys:
@@ -261,7 +266,9 @@ def add_schedule_firebase(aquarium_id: int, schedule: dict) -> dict:
     new_time = schedule["time"]
     cycle = schedule["cycle"]
     switch = schedule["switch"]
+    food = schedule["food"]
     duplicate = False
+
 
     for key, value in current_schedules.items():
         if value["time"] == new_time:
@@ -269,7 +276,7 @@ def add_schedule_firebase(aquarium_id: int, schedule: dict) -> dict:
             break
 
     if not duplicate:
-        schedule_ref.push({"time": new_time, "cycle" : cycle, "switch" : switch})
+        schedule_ref.push({"time": new_time, "cycle" : cycle, "switch" : switch, "food" : food})
         return {"status": "added", "time": new_time, "cycle": cycle, "switch" : switch}
     else:
         return {"status": "duplicate", "time": new_time, "switch" : switch}

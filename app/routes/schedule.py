@@ -18,6 +18,7 @@ def add_schedule(aquarium_id):
       - time (str): Feeding time in HH:MM format
       - cycle (int): Amount or cycle number for feeding
       - switch (bool): Whether the schedule is enabled or not
+      - food (str) : what type of food? pellet or flakes
 
     Args:
         aquarium_id (int): The ID of the aquarium
