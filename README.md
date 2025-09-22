@@ -129,7 +129,8 @@ Adds a new feeding schedule for the specified aquarium. The schedule includes fe
 {
   "time": "08:30",
   "cycle": 2,
-  "switch": true
+  "switch": true,
+  "food" : "pellet"
 }
 ```
 
@@ -221,7 +222,8 @@ With active Schedules
     {
       "time": "08:30",
       "cycle": 2,
-      "switch": true
+      "switch": true,
+      "food" : "pellet"
     },
     {
       "time": "18:00",
