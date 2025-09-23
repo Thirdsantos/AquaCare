@@ -222,13 +222,12 @@ With active Schedules
     {
       "time": "08:30",
       "cycle": 2,
-      "switch": true,
       "food" : "pellet"
     },
     {
       "time": "18:00",
       "cycle": 1,
-      "switch": true
+      "food" : "pellet"
     }
   ]
 }

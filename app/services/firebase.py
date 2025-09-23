@@ -226,7 +226,7 @@ def get_schedule_firebase(aquarium_id: int) -> dict:
 
     for v in schedule_value.values():
         if v.get("switch"):
-            active_schedules.append({"time": v.get("time"), "food" : v.get("food")})
+            active_schedules.append({"time": v.get("time"), "food" : v.get("food"), "cycle" : v.get("cycle")})
 
     if not active_schedules:
         return {"status": "empty", "schedules": []}
