@@ -2,7 +2,6 @@ import os
 import json
 import base64
 import io
-import re
 from PIL import Image
 import google.generativeai as genai
 from dotenv import load_dotenv
