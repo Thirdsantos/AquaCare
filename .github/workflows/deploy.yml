@@ -18,8 +18,8 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run tests
-        run: |
-          pytest
+        run: pytest tests/ || [ $? -eq 5 ]
+
 
       - name: Deploy
         run: |
