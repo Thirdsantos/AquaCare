@@ -27,7 +27,7 @@ def initialize_gemini():
     if not load_gemini_config():
         return None
     try:
-        model = genai.GenerativeModel("gemini-1.5-flash")
+        model = genai.GenerativeModel("models/gemini-2.5-flash")
         return model
     except Exception as e:
         print(f"Error initializing Gemini model: {e}")
