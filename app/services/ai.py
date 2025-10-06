@@ -1,3 +1,4 @@
+from app.services.firebase import store_ai_chat, load_message
 import os
 import json
 import base64
@@ -14,7 +15,6 @@ def load_gemini_config():
         if not api_key:
             print("GEMINI_API_KEY not found in environment variables")
             return False
-        
         genai.configure(api_key=api_key)
         return True
     except Exception as e:
@@ -43,28 +43,50 @@ def decode_base64_image(base64_str):
     except Exception as e:
         print(f"Error decoding image: {e}")
         return None
-
-
 def ask_gemini(text=None, image=None):
     if not model:
         return {"Error": "Gemini AI not properly initialized. Check API key configuration."}, 500
-    
+
     if not text and not image:
         return {"Error": "At least give a question or an image"}, 400
 
+    # Load recent conversation (last 10 messages)
+    chat_history = load_message(limit=10)
+
+    # Prepare messages for Gemini, keeping your instructions intact
+    prompts = []
+    for msg in chat_history:
+        if msg["role"] == "user":
+            prompts.append("User: " + msg["message"])
+        else:
+            prompts.append("AI: " + msg["message"])
+
+    # Add current user message
+    if text:
+        prompts.append("User: " + text)
+
+    
     # Text only
     if text and not image:
         instruction = (
             "Your name is Aquabot. If a question is not related to aquatic life or aquarium and fish, "
             "please respond like 'Oops, I can only answer questions about aquatic life and the wonders of the water world. "
             "Let's talk fish, oceans, lakes, or anything aquatic!' "
-            "Also, start your response like 'Hi, I'm Aquabot, happy to serve you!' "
+            "Also, check if you already greet the user base on the previous conversation if ever that you dont greet the user start your response like 'Hi, I'm Aquabot, happy to serve you!' "
             "Do not use bold text. "
+            "Do not use newline characters or lists. "
+            "Provide the response in a simple plain text paragraph. "
             "User: "
         )
         modified_question = instruction + text
         try:
-            response = model.generate_content([modified_question])
+            response = model.generate_content(prompts + [modified_question])
+            
+            # Store messages in Firebase
+            if text:
+                store_ai_chat("user", text)
+            store_ai_chat("ai", response.text)
+            
             return {"AI_Response": response.text}, 200
         except Exception as e:
             return {"Error": f"Gemini API error: {str(e)}"}, 500
@@ -88,11 +110,14 @@ def ask_gemini(text=None, image=None):
             return {"Error": "Failed to decode image"}, 400
 
         try:
-            response = model.generate_content([detection_prompt, image_data])
+            response = model.generate_content(prompts + [detection_prompt, image_data])
+            
+            # Store AI message
+            store_ai_chat("ai", response.text)
+            
             return {"AI_Response": response.text}, 200
         except Exception as e:
             return {"Error": f"Gemini API failed: {str(e)}"}, 500
-
 
     # Text + Image
     else:
@@ -108,9 +133,15 @@ def ask_gemini(text=None, image=None):
         image_data = decode_base64_image(image)
         if not image_data:
             return {"Error": "Failed to decode image"}, 400
-            
+
         try:
-            response = model.generate_content([modified_question, image_data])
+            response = model.generate_content(prompts + [modified_question, image_data])
+            
+            # Store both messages
+            if text:
+                store_ai_chat("user", text)
+            store_ai_chat("ai", response.text)
+            
             return {"AI_Response": response.text}, 200
         except Exception as e:
             return {"Error": f"Gemini API error: {str(e)}"}, 500

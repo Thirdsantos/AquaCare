@@ -1,5 +1,6 @@
 from . import db
 from app.services.notification import send_fcm_notification
+from datetime import datetime
 
 class FirebaseReference:
     def __init__(self, aquarium_id):
@@ -367,4 +368,72 @@ def delete_schedule_firebase(aquarium_id: int, time: str) -> dict:
     return {"status": "not_found", "time": time}
 
 
+def add_logs_ai(aquarium_id: int, question: str, response: str):
+    '''This function add the previous chat logs in the ai into the firebase
+    
+    Args:
+      -aquarium_id : This is the aquarium id of the aquarium
+      -question : This is the question of the user
+      -response: This is the response of the AI
 
+
+    '''
+  
+    pass
+
+def get_firebase_thresholds() -> list:
+    '''This function checks all the aquarium and return a list of active thresholds'''
+    ref_aquarium = db.reference("aquariums")
+    aquarium_value = ref_aquarium.get()
+
+    if not aquarium_value:
+        print("No aquarium data")
+        return []
+    
+    active_thresholds = []
+
+    for key, value in aquarium_value.items():
+        
+        notification = value.get("notification", {})
+        thresholds = value.get("threshold", {})
+
+        ph_active = notification.get("ph", False)
+        temperature_active = notification.get("temperature", False)
+        turbidity_active = notification.get("turbidity", False)
+
+        if ph_active or temperature_active or turbidity_active:
+            active_thresholds.append({
+                "aquarium_id" : key,
+                "ph_notification" : ph_active,
+                "temperature_notification" : temperature_active,
+                "turbidity_notification" : turbidity_active,
+                "thresholds" : thresholds
+            })
+
+    return active_thresholds      
+
+
+def store_ai_chat(role: str, message: str):
+    ref = db.reference("chats")
+    
+    # Safe timestamp for Firebase keys
+    timestamp = datetime.now().isoformat().replace(":", "-").replace(".", "-")
+    
+    ref.child(timestamp).set({
+        "role": role,
+        "message": message
+    })
+
+
+def load_message(limit: int =10):
+    ref = db.reference("chats")
+    data = ref.get() or {}
+
+    sorted_items = sorted(data.items())
+
+    recent = sorted_items[-limit:]
+
+    messages = [{"role": v["role"], "message": v["message"]} for _, v in recent]
+    return messages
+
+    
