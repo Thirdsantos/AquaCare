@@ -368,18 +368,7 @@ def delete_schedule_firebase(aquarium_id: int, time: str) -> dict:
     return {"status": "not_found", "time": time}
 
 
-def add_logs_ai(aquarium_id: int, question: str, response: str):
-    '''This function add the previous chat logs in the ai into the firebase
-    
-    Args:
-      -aquarium_id : This is the aquarium id of the aquarium
-      -question : This is the question of the user
-      -response: This is the response of the AI
 
-
-    '''
-  
-    pass
 
 def get_firebase_thresholds() -> list:
     '''This function checks all the aquarium and return a list of active thresholds'''
