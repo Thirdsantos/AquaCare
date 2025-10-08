@@ -425,4 +425,16 @@ def load_message(limit: int =10):
     messages = [{"role": v["role"], "message": v["message"]} for _, v in recent]
     return messages
 
+'''
+def compare_ml_firebase(mlPredictions, firebaseThresholds):
     
+    ml_dict = {pred["aquarium_id"]: pred for pred in mlPredictions}
+    firebase_dict= {aquarium["aquarium_id"] : aquarium for aquarium in firebaseThresholds}
+    
+    for aquarium_id, aquarium in firebase_dict.items():
+        thresholds = aquarium["threshold"]
+        ml_value = ml_dict.get(aquarium_id)
+
+      if aquarium["ph_notification"]:
+        ph = ml_value[""]
+'''
