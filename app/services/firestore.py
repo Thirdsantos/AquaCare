@@ -15,19 +15,54 @@ load_dotenv()
 LOCAL_TZ = tzlocal.get_localzone()
 
 
-key_base64 = os.getenv("GOOGLE_FIREBASE_KEY")
-if not key_base64:
-    raise ValueError("GOOGLE_FIREBASE_KEY environment variable is not set!")
+import os
+import json
+import base64
+import firebase_admin
+from firebase_admin import credentials, firestore
+
+def load_firebase_credentials():
+    """Load Firebase credentials from environment or file with auto-detection."""
+    key_data = os.getenv("GOOGLE_FIREBASE_KEY")
+
+    if not key_data:
+        raise ValueError("GOOGLE_FIREBASE_KEY environment variable is not set!")
+
+    try:
+        decoded = base64.b64decode(key_data).decode("utf-8")
+        parsed = json.loads(decoded)
+        print("Loaded Firebase credentials from Base64.")
+        return parsed
+    except (base64.binascii.Error, json.JSONDecodeError):
+        pass
+
+    try:
+        parsed = json.loads(key_data)
+        print("Loaded Firebase credentials from raw JSON string.")
+        return parsed
+    except json.JSONDecodeError:
+        pass
+
+    if os.path.exists(key_data):
+        with open(key_data, "r") as f:
+            parsed = json.load(f)
+            print(f"Loaded Firebase credentials from file: {key_data}")
+            return parsed
+
+    raise ValueError(
+        "Invalid GOOGLE_FIREBASE_KEY format. Expected base64, JSON string, or valid file path."
+    )
 
 
-key_json = json.loads(base64.b64decode(key_base64).decode("utf-8"))
+
+key_json = load_firebase_credentials()
 
 if not firebase_admin._apps:
     cred = credentials.Certificate(key_json)
     firebase_admin.initialize_app(cred)
 
-
 db = firestore.client()
+
 
 scheduler = None
 
