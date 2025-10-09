@@ -3,6 +3,7 @@ from app.services.notification import send_fcm_notification
 from datetime import datetime
 from .ai import ask_gemini_suggestions_ml
 
+
 class FirebaseReference:
     def __init__(self, aquarium_id):
         self.id = aquarium_id
@@ -465,6 +466,40 @@ def compare_ml_firebase(mlPredictions, firebaseThresholds):
                 )
                 response_txt = ask_gemini_suggestions_ml(text)
                 print(f"Aquarium {aquarium_id} (Turbidity): {response_txt}")
+
+def set_daily_schedule_firebase(aquarium_id: int, daily: bool, time: str) -> dict:
+    """
+    Update the 'daily' flag of a feeding schedule in Firebase.
+
+    This function searches for a feeding schedule based on the given time
+    and updates its 'daily' value (True for daily feeding, False for one-time feeding).
+
+    Args:
+        aquarium_id (int): The unique identifier of the aquarium.
+        daily (bool): The new daily status (True for daily, False for not daily).
+        time (str): Feeding time in HH:MM format.
+
+    Returns:
+        dict: A dictionary containing the operation result with keys:
+            - "status" (str): Either "updated" or "not_found".
+            - "time" (str): The feeding time requested.
+            - "daily_enabled" (bool, optional): The new daily value if updated.
+    """
+    ref = FirebaseReference(aquarium_id)
+    schedule_ref = ref.get_ref("auto_feeder/schedule")
+    schedules = schedule_ref.get()
+
+
+    for key, value in schedules.items():
+        if value.get("time") == time:
+            key_ref = schedule_ref.child(key)
+            key_ref.update({"daily": daily})
+
+            return {"status": "updated", "time": time, "daily_enabled": daily}
+
+    return {"status": "not_found", "time": time}
+
+
 
 
 

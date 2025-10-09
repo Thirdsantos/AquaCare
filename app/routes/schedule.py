@@ -4,8 +4,10 @@ from app.services.firebase import (
     delete_schedule_firebase,
     change_cycle_schedule_firebase,
     set_on_off_schedule_firebase,
-    get_schedule_firebase
+    get_schedule_firebase,
+    set_daily_schedule_firebase
 )
+from app.services.firestore import create_schedule, delete_schedule_by_time
 
 schedule_route = Blueprint("schedule", __name__)
 
@@ -19,7 +21,8 @@ def add_schedule(aquarium_id):
       - cycle (int): Amount or cycle number for feeding
       - switch (bool): Whether the schedule is enabled or not
       - food (str) : what type of food? pellet or flakes
-
+      - daily (bool) : Wether the scheudle is daily or not
+ 
     Args:
         aquarium_id (int): The ID of the aquarium
 
@@ -95,3 +98,41 @@ def get_schedules(aquarium_id):
     """
     schedules = get_schedule_firebase(aquarium_id)
     return jsonify(schedules)  
+
+@schedule_route.route("/update_daily/<int:aquarium_id>/<string:time>/<switch>", methods=["PATCH"])
+def update_daily(aquarium_id, time, switch):
+    """
+    Update the 'daily' status (true/false) for a feeding schedule.
+
+    Args:
+        aquarium_id (int): The ID of the aquarium
+        time (str): Feeding time in HH:MM format
+        switch (str): Daily flag as string ('true', 'false', etc.)
+
+    Returns:
+        JSON: Result of the update (status, time, daily_enabled)
+    """
+    daily_value = switch.lower() in ['true', '1', 't', 'y', 'yes']
+    update = set_daily_schedule_firebase(aquarium_id, daily_value, time)
+    return jsonify(update)
+
+from flask import jsonify
+
+@schedule_route.route("/task/<int:aquarium_id>", methods=["POST"])
+def add_task(aquarium_id):
+    json_req = request.get_json()
+    output = create_schedule(
+        aquarium_id=aquarium_id,
+        cycle=json_req["cycle"],
+        schedule_time=json_req["schedule_time"]
+    )
+    return jsonify({"message": "Sucessfully added the schedule"})
+
+@schedule_route.route("/task/delete/<int:aquarium_id>", methods=["POST"])
+def delete_task(aquarium_id):
+    json_req = request.get_json()
+    output = delete_schedule_by_time(aquarium_id= aquarium_id, schedule_time= json_req["schedule_time"])
+
+    return jsonify({"message": "Sucessfully remove the schedule"})
+
+
