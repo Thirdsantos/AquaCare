@@ -18,6 +18,9 @@ def create_app():
   from app.routes.schedule import schedule_route
   app.register_blueprint(schedule_route)
 
+  from app.routes.machine_learning_route import ml_route
+  app.register_blueprint(ml_route)
+
 
   
 

@@ -1,4 +1,4 @@
-from app.services.firebase import store_ai_chat, load_message
+
 import os
 import json
 import base64
@@ -6,6 +6,7 @@ import io
 from PIL import Image
 import google.generativeai as genai
 from dotenv import load_dotenv
+from .chat_storage import  store_ai_chat, load_message
 
 load_dotenv()
 
@@ -145,3 +146,26 @@ def ask_gemini(text=None, image=None):
             return {"AI_Response": response.text}, 200
         except Exception as e:
             return {"Error": f"Gemini API error: {str(e)}"}, 500
+        
+def ask_gemini_suggestions_ml(text: str):
+    """
+    Sends the given ML prediction and threshold data to Gemini
+    for generating a short and meaningful aquarium notification.
+    """
+    
+    instruction = (
+        "You are Aqua-Notifier, a smart assistant that provides short and meaningful "
+        "notifications about aquarium conditions. The user will send you data containing "
+        "the safe sensor ranges (min and max) and the next-hour predictions from a machine "
+        "learning model. Analyze the predicted values and determine if any readings are near "
+        "or outside the safe range. Respond with a short, polite 1–2 sentence notification "
+        "explaining the situation and giving a simple recommendation. Do NOT suggest buying "
+        "anything like chemicals or products. Instead, suggest practical actions such as "
+        "monitoring the water, adjusting feeding, checking the filter, or observing fish behavior. "
+        "Keep the message clear, friendly, and concise."
+        "User: "
+    )
+    
+
+    response = model.generate_content([instruction, text])
+    return response.text

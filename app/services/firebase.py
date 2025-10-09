@@ -1,6 +1,7 @@
 from . import db
 from app.services.notification import send_fcm_notification
 from datetime import datetime
+from .ai import ask_gemini_suggestions_ml
 
 class FirebaseReference:
     def __init__(self, aquarium_id):
@@ -226,7 +227,7 @@ def get_schedule_firebase(aquarium_id: int) -> dict:
     active_schedules = []
 
     for v in schedule_value.values():
-        if v.get("switch"):
+        if v.get("switch") or v.get("daily"):
             active_schedules.append({"time": v.get("time"), "food" : v.get("food"), "cycle" : v.get("cycle")})
 
     if not active_schedules:
@@ -251,6 +252,7 @@ def add_schedule_firebase(aquarium_id: int, schedule: dict) -> dict:
             - "cycle" (int): Amount or cycle number for feeding.
             - "switch" (bool) : Tells if the alarm is on or off
             - "food" (str) : Tells what type of food for the fish
+            - "daily" (bool) : Tells if the schedule is daily or not
 
     Returns:
         dict: A dictionary containing the operation result with keys:
@@ -268,6 +270,7 @@ def add_schedule_firebase(aquarium_id: int, schedule: dict) -> dict:
     cycle = schedule["cycle"]
     switch = schedule["switch"]
     food = schedule["food"]
+    daily = schedule["daily"]
     duplicate = False
 
 
@@ -277,7 +280,7 @@ def add_schedule_firebase(aquarium_id: int, schedule: dict) -> dict:
             break
 
     if not duplicate:
-        schedule_ref.push({"time": new_time, "cycle" : cycle, "switch" : switch, "food" : food})
+        schedule_ref.push({"time": new_time, "cycle" : cycle, "switch" : switch, "food" : food, "daily" : daily})
         return {"status": "added", "time": new_time, "cycle": cycle, "switch" : switch}
     else:
         return {"status": "duplicate", "time": new_time, "switch" : switch}
@@ -371,7 +374,7 @@ def delete_schedule_firebase(aquarium_id: int, time: str) -> dict:
 
 
 def get_firebase_thresholds() -> list:
-    '''This function checks all the aquarium and return a list of active thresholds'''
+    """This function checks all the aquarium and returns a list of active thresholds"""
     ref_aquarium = db.reference("aquariums")
     aquarium_value = ref_aquarium.get()
 
@@ -381,10 +384,13 @@ def get_firebase_thresholds() -> list:
     
     active_thresholds = []
 
-    for key, value in aquarium_value.items():
+    for aquarium in aquarium_value:
+        if not aquarium:
+            # Skip if the item is None
+            continue
         
-        notification = value.get("notification", {})
-        thresholds = value.get("threshold", {})
+        notification = aquarium.get("notification", {})
+        thresholds = aquarium.get("threshold", {})
 
         ph_active = notification.get("ph", False)
         temperature_active = notification.get("temperature", False)
@@ -392,49 +398,74 @@ def get_firebase_thresholds() -> list:
 
         if ph_active or temperature_active or turbidity_active:
             active_thresholds.append({
-                "aquarium_id" : key,
-                "ph_notification" : ph_active,
-                "temperature_notification" : temperature_active,
-                "turbidity_notification" : turbidity_active,
-                "thresholds" : thresholds
+                "aquarium_id": aquarium.get("aquarium_id"),
+                "ph_notification": ph_active,
+                "temperature_notification": temperature_active,
+                "turbidity_notification": turbidity_active,
+                "thresholds": thresholds
             })
 
-    return active_thresholds      
+    return active_thresholds
 
 
-def store_ai_chat(role: str, message: str):
-    ref = db.reference("chats")
-    
-    # Safe timestamp for Firebase keys
-    timestamp = datetime.now().isoformat().replace(":", "-").replace(".", "-")
-    
-    ref.child(timestamp).set({
-        "role": role,
-        "message": message
-    })
 
-
-def load_message(limit: int =10):
-    ref = db.reference("chats")
-    data = ref.get() or {}
-
-    sorted_items = sorted(data.items())
-
-    recent = sorted_items[-limit:]
-
-    messages = [{"role": v["role"], "message": v["message"]} for _, v in recent]
-    return messages
-
-'''
 def compare_ml_firebase(mlPredictions, firebaseThresholds):
+    """Compare ML predictions against Firebase thresholds and request suggestions if out of range."""
     
-    ml_dict = {pred["aquarium_id"]: pred for pred in mlPredictions}
-    firebase_dict= {aquarium["aquarium_id"] : aquarium for aquarium in firebaseThresholds}
+    # Convert both lists to dictionaries for quick lookup by aquarium_id
+    ml_dict = {str(pred["tank_id"]): pred for pred in mlPredictions}
+    firebase_dict = {str(aquarium["aquarium_id"]): aquarium for aquarium in firebaseThresholds}
+
     
     for aquarium_id, aquarium in firebase_dict.items():
-        thresholds = aquarium["threshold"]
+        thresholds = aquarium["thresholds"]
         ml_value = ml_dict.get(aquarium_id)
 
-      if aquarium["ph_notification"]:
-        ph = ml_value[""]
-'''
+        if not ml_value:
+            continue 
+
+
+        if aquarium["ph_notification"]:
+            predicted_ph = ml_value["predicted_ph"]
+            ph_min = thresholds["ph"]["min"]
+            ph_max = thresholds["ph"]["max"]
+
+            if predicted_ph < ph_min or predicted_ph > ph_max:
+                text = (
+                    f"The safe range for pH is {ph_min}-{ph_max}, "
+                    f"and the ML predicted value for the next hour is {predicted_ph}."
+                )
+                response_txt = ask_gemini_suggestions_ml(text)
+                print(f"Aquarium {aquarium_id} (pH): {response_txt}")
+
+
+        if aquarium["temperature_notification"]:
+            predicted_temp = ml_value["predicted_temperature"]
+            temp_min = thresholds["temperature"]["min"]
+            temp_max = thresholds["temperature"]["max"]
+
+            if predicted_temp < temp_min or predicted_temp > temp_max:
+                text = (
+                    f"The safe range for temperature is {temp_min}-{temp_max}°C, "
+                    f"and the ML predicted value for the next hour is {predicted_temp}°C."
+                )
+                response_txt = ask_gemini_suggestions_ml(text)
+                print(f"Aquarium {aquarium_id} (Temperature): {response_txt}")
+
+
+        if aquarium["turbidity_notification"]:
+            predicted_turbidity = ml_value["predicted_turbidity"]
+            turb_min = thresholds["turbidity"]["min"]
+            turb_max = thresholds["turbidity"]["max"]
+
+            if predicted_turbidity < turb_min or predicted_turbidity > turb_max:
+                text = (
+                    f"The safe range for turbidity is {turb_min}-{turb_max}, "
+                    f"and the ML predicted value for the next hour is {predicted_turbidity}."
+                )
+                response_txt = ask_gemini_suggestions_ml(text)
+                print(f"Aquarium {aquarium_id} (Turbidity): {response_txt}")
+
+
+
+        
