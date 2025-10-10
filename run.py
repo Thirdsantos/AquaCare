@@ -2,9 +2,8 @@ import logging
 import os
 import sys
 import traceback
-import pytz
 import atexit
-import tzlocal
+from zoneinfo import ZoneInfo
 from datetime import datetime
 from flask_cors import CORS
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -34,13 +33,11 @@ logger = logging.getLogger(__name__)
 # Timezone Setup
 # -----------------------
 tz_name = os.getenv("TZ", "Asia/Manila")
-LOCAL_TZ = pytz.timezone(tz_name)
+LOCAL_TZ = ZoneInfo(tz_name)
 logger.info(f"Server timezone: {tz_name}, Local time: {datetime.now(LOCAL_TZ)}")
 
 # Diagnostic info
 print("[INIT] APS Timezone:", LOCAL_TZ)
-print("[INIT] System timezone:", tzlocal.get_localzone())
-print("[INIT] Now UTC:", datetime.now(pytz.UTC))
 print("[INIT] Now local:", datetime.now(LOCAL_TZ))
 
 # -----------------------
@@ -52,7 +49,16 @@ CORS(app)
 # -----------------------
 # APScheduler Setup
 # -----------------------
-scheduler = BackgroundScheduler(timezone=LOCAL_TZ, daemon=True)
+scheduler = BackgroundScheduler(
+    timezone=LOCAL_TZ,
+    daemon=True,
+    job_defaults={
+        "coalesce": True,
+        "max_instances": 1,
+        # Allow up to 1 hour late execution to survive hiccups
+        "misfire_grace_time": 3600,
+    },
+)
 
 def debug_scheduler_heartbeat():
     logger.info(f"💓 APScheduler heartbeat at {datetime.now(LOCAL_TZ).strftime('%Y-%m-%d %H:%M:%S %Z')}")

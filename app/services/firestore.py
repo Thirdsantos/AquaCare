@@ -2,8 +2,8 @@ import os
 import json
 import base64
 import re
-from datetime import datetime, timedelta
-import pytz
+from datetime import datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
 import requests
 from flask import jsonify
 import firebase_admin
@@ -15,7 +15,7 @@ from dotenv import load_dotenv
 # ─────────────────────────────
 load_dotenv()
 tz_name = os.getenv("TZ", "Asia/Manila")
-LOCAL_TZ = pytz.timezone(tz_name)
+LOCAL_TZ = ZoneInfo(tz_name)
 
 # ─────────────────────────────
 # 🔹 Firebase Initialization
@@ -63,30 +63,36 @@ scheduler = None
 # 🔹 Add schedule to Firestore (store string time)
 # ─────────────────────────────
 def add_schedule_firestore(aquarium_id: int, cycle: int, schedule_time: datetime, job_id: str) -> str:
-    """Add a schedule document to Firestore."""
+    """Add a schedule document to Firestore.
+
+    We store schedule_time as Firestore Timestamp (UTC) to avoid TZ drift.
+    """
     if schedule_time.tzinfo is None:
-        schedule_time = LOCAL_TZ.localize(schedule_time)
+        schedule_time = schedule_time.replace(tzinfo=LOCAL_TZ)
     else:
         schedule_time = schedule_time.astimezone(LOCAL_TZ)
 
-    schedule_time_str = schedule_time.strftime("%Y-%m-%d %H:%M:%S")
+    schedule_time_utc = schedule_time.astimezone(timezone.utc)
 
     db.collection("Schedules").document(job_id).set({
         "aquarium_id": aquarium_id,
         "cycle": cycle,
-        "schedule_time": schedule_time_str,  # 🔹 Stored as string
+        "schedule_time": schedule_time_utc,  # Firestore Timestamp in UTC
         "status": "pending"
     })
-    return f"Schedule added: {job_id} at {schedule_time_str}"
+    return f"Schedule added: {job_id} at {schedule_time.isoformat()}"
 
 # ─────────────────────────────
 # 🔹 Create schedule and register in APScheduler
 # ─────────────────────────────
 def create_schedule(aquarium_id: int, cycle: int, schedule_time: str):
-    """Create a Firestore schedule and register an APScheduler job."""
+    """Create a Firestore schedule and register an APScheduler job.
+
+    schedule_time is expected as 'YYYY-%m-%d %H:%M:%S' in Asia/Manila local time.
+    """
     server_now = datetime.now(LOCAL_TZ)
     naive_time = datetime.strptime(schedule_time, "%Y-%m-%d %H:%M:%S")
-    run_time = LOCAL_TZ.localize(naive_time)
+    run_time = naive_time.replace(tzinfo=LOCAL_TZ)
 
     print("\n[DEBUG] Creating Schedule:")
     print(f"Server local time now:       {server_now}")
@@ -102,7 +108,8 @@ def create_schedule(aquarium_id: int, cycle: int, schedule_time: str):
         trigger="date",
         run_date=run_time,
         args=[aquarium_id, cycle, job_id],
-        id=job_id
+        id=job_id,
+        replace_existing=True,
     )
 
     added_job = scheduler.get_job(job_id)
@@ -148,11 +155,11 @@ def set_status_done_firebase(job_id: str):
 # 🔹 Reschedule all pending jobs on startup
 # ─────────────────────────────
 def reschedule_all_jobs_from_firestore():
-    """Recreate all pending Firestore schedules after restart."""
+    """Recreate all pending Firestore schedules after restart and execute missed ones."""
     schedules_ref = db.collection("Schedules")
     docs = schedules_ref.stream()
 
-    restored_count = skipped_past = skipped_duplicate = 0
+    restored_count = skipped_duplicate = executed_past = 0
     now = datetime.now(LOCAL_TZ)
     print(f"[INIT] Rescheduling jobs... Local time: {now}")
 
@@ -162,24 +169,42 @@ def reschedule_all_jobs_from_firestore():
         aquarium_id = data.get("aquarium_id")
         cycle = data.get("cycle", 1)
         status = data.get("status", "pending")
-        schedule_str = data.get("schedule_time")
+        schedule_field = data.get("schedule_time")
 
         if status != "pending":
             continue
-        if not schedule_str:
+        if not schedule_field:
             print(f"[SKIP] {job_id}: missing schedule_time")
             continue
 
-        try:
-            parsed_time = datetime.strptime(schedule_str, "%Y-%m-%d %H:%M:%S")
-            schedule_time = LOCAL_TZ.localize(parsed_time)
-        except Exception as e:
-            print(f"[ERROR] Failed to parse schedule_time for {job_id}: {e}")
+        # Normalize schedule_time to LOCAL_TZ for APScheduler
+        if isinstance(schedule_field, datetime):
+            # Firestore Timestamp -> aware datetime (usually UTC)
+            schedule_time = schedule_field
+            if schedule_time.tzinfo is None:
+                # Assume UTC if naive timestamp somehow occurs
+                schedule_time = schedule_time.replace(tzinfo=timezone.utc)
+            schedule_time = schedule_time.astimezone(LOCAL_TZ)
+        elif isinstance(schedule_field, str):
+            # Backward-compat: previously stored as local Manila string
+            try:
+                parsed_time = datetime.strptime(schedule_field, "%Y-%m-%d %H:%M:%S")
+                schedule_time = parsed_time.replace(tzinfo=LOCAL_TZ)
+            except Exception as e:
+                print(f"[ERROR] Failed to parse schedule_time for {job_id}: {e}")
+                continue
+        else:
+            print(f"[SKIP] {job_id}: unsupported schedule_time type {type(schedule_field)}")
             continue
 
         if schedule_time <= now:
-            skipped_past += 1
-            print(f"[SKIP] {job_id}: already past ({schedule_time})")
+            # Execute missed pending job immediately
+            try:
+                print(f"[EXECUTE] Missed job {job_id} (scheduled {schedule_time}, now {now})")
+                send_scheduled_raspi(aquarium_id, cycle, job_id)
+                executed_past += 1
+            except Exception as e:
+                print(f"[ERROR] Failed executing missed job {job_id}: {e}")
             continue
 
         if scheduler.get_job(job_id):
@@ -192,7 +217,8 @@ def reschedule_all_jobs_from_firestore():
             trigger="date",
             run_date=schedule_time,
             args=[aquarium_id, cycle, job_id],
-            id=job_id
+            id=job_id,
+            replace_existing=True,
         )
         restored_count += 1
         print(f"[RESTORE] ✅ Job {job_id} scheduled for {schedule_time}")
@@ -200,6 +226,6 @@ def reschedule_all_jobs_from_firestore():
     print(
         f"\n[RESULT] Rescheduling complete — "
         f"{restored_count} restored, "
-        f"{skipped_past} skipped (past), "
+        f"{executed_past} executed (past), "
         f"{skipped_duplicate} skipped (duplicate)."
     )
