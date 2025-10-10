@@ -242,6 +242,7 @@ def reschedule_all_jobs_from_firestore():
     skipped_past = 0
     skipped_duplicate = 0
     now = datetime.now(LOCAL_TZ)
+    print(f"Server timezone: {LOCAL_TZ}, Current time: {now}")
 
     for doc in docs:
         data = doc.to_dict()
@@ -251,6 +252,7 @@ def reschedule_all_jobs_from_firestore():
         cycle = data.get("cycle", 1)
         schedule_time = data.get("schedule_time")
         status = data.get("status", "pending")
+        print(f"Found schedule {job_id} — Firestore time: {schedule_time}")
 
         # Only reschedule pending jobs
         if status != "pending":
@@ -262,17 +264,25 @@ def reschedule_all_jobs_from_firestore():
 
         # Convert Firestore timestamp or string to datetime
         if isinstance(schedule_time, datetime):
+            if schedule_time.tzinfo is None:
+                # Firestore timestamps are UTC by default
+                schedule_time = schedule_time.replace(tzinfo=pytz.UTC)
             scheduled_at = schedule_time.astimezone(LOCAL_TZ)
         else:
             try:
                 scheduled_at = datetime.fromisoformat(schedule_time)
+                if scheduled_at.tzinfo is None:
+                    scheduled_at = pytz.UTC.localize(scheduled_at)
                 scheduled_at = scheduled_at.astimezone(LOCAL_TZ)
             except Exception as e:
                 print(f"Failed to parse schedule_time for {job_id}: {e}")
                 continue
 
+        print(f"Parsed schedule_time localized: {scheduled_at}, Now: {now}")
+
         # Skip jobs in the past
         if scheduled_at <= now:
+            print(f"Skipping {job_id} — scheduled time is in the past.")
             skipped_past += 1
             continue
 
@@ -293,7 +303,7 @@ def reschedule_all_jobs_from_firestore():
         )
 
         restored_count += 1
-        print(f"Rescheduled job {job_id} for {scheduled_at}")
+        print(f"✅ Rescheduled job {job_id} for {scheduled_at}")
 
     print(
         f"\nFinished rescheduling: "
