@@ -279,7 +279,9 @@ def reschedule_all_jobs_from_firestore():
         status = data.get("status", "pending")
         utc_time = data.get("schedule_time")
 
-        print(f"\n[DEBUG] Found schedule {job_id} — Firestore time: {utc_time}")
+        print(f"[DEBUG] Scheduler UTC now: {datetime.now(pytz.UTC)}")
+        print(f"[DEBUG] schedule_time UTC: {schedule_time.astimezone(pytz.UTC)}")
+
 
         # Skip non-pending jobs
         if status != "pending":
