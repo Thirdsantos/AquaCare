@@ -1,19 +1,28 @@
+import firebase_admin
+from firebase_admin import credentials, firestore
+from dotenv import load_dotenv
 import os
 import json
 import base64
 import re
 from datetime import datetime, timedelta, timezone
-import pytz
-import requests
+import tzlocal
 from flask import jsonify
-import firebase_admin
-from firebase_admin import credentials, firestore
-from dotenv import load_dotenv
+import requests
+import pytz
 
-# Load environment variables
+
 load_dotenv()
 tz_name = os.getenv("TZ", "Asia/Manila")
 LOCAL_TZ = pytz.timezone(tz_name)
+
+
+
+import os
+import json
+import base64
+import firebase_admin
+from firebase_admin import credentials, firestore
 
 def load_firebase_credentials():
     """Load Firebase credentials from environment or file with auto-detection."""
@@ -48,19 +57,32 @@ def load_firebase_credentials():
     )
 
 
-# Initialize Firebase
+
 key_json = load_firebase_credentials()
+
 if not firebase_admin._apps:
     cred = credentials.Certificate(key_json)
     firebase_admin.initialize_app(cred)
 
 db = firestore.client()
 
+
 scheduler = None
 
-
 def add_schedule_firestore(aquarium_id: int, cycle: int, schedule_time: datetime, job_id: str) -> str:
-    """Add a schedule document to Firestore."""
+    """
+    Add a schedule document to Firestore.
+
+    Args:
+        aquarium_id (int): ID of the aquarium.
+        cycle (int): Feeding cycle or amount.
+        schedule_time (datetime): Localized datetime for the schedule.
+        job_id (str): Firestore document ID.
+
+    Returns:
+        str: Human-readable confirmation message.
+    """
+
     if schedule_time.tzinfo is None:
         schedule_time = schedule_time.replace(tzinfo=LOCAL_TZ)
 
@@ -70,12 +92,14 @@ def add_schedule_firestore(aquarium_id: int, cycle: int, schedule_time: datetime
         "schedule_time": schedule_time,
         "status": "pending"
     })
-    return f"Schedule added: {job_id} for aquarium {aquarium_id} at {schedule_time.isoformat()}"
+    return f" Schedule added: {job_id} for aquarium {aquarium_id} at {schedule_time.isoformat()}"
 
 
 def create_schedule(aquarium_id: int, cycle: int, schedule_time: str):
     """Create a Firestore schedule and register a one-time APScheduler job."""
-    run_time = datetime.strptime(schedule_time, "%Y-%m-%d %H:%M:%S").replace(tzinfo=LOCAL_TZ)
+    naive_time = datetime.strptime(schedule_time, "%Y-%m-%d %H:%M:%S")
+    run_time = LOCAL_TZ.localize(naive_time)
+
     job_id = f"schedule_at_{run_time.strftime('%Y%m%d_%H%M%S')}"
 
     output = add_schedule_firestore(aquarium_id, cycle, run_time, job_id)
@@ -89,10 +113,11 @@ def create_schedule(aquarium_id: int, cycle: int, schedule_time: str):
         id=job_id
     )
 
-
+  
 def send_scheduled_raspi(aquarium_id, cycle, job_id):
-    """Send a scheduled feeding command to Raspberry Pi."""
     target_url = f"https://pi-cam.alfreds.dev/{aquarium_id}/add_task"
+
+
     payload = {
         "aquarium_id": aquarium_id,
         "cycle": cycle,
@@ -100,6 +125,7 @@ def send_scheduled_raspi(aquarium_id, cycle, job_id):
     }
 
     try:
+        # Send POST request
         response = requests.post(target_url, json=payload, timeout=5)
         response.raise_for_status()
         print(f"Task sent to Raspberry Pi: {response.status_code} - {response.text}")
@@ -108,13 +134,26 @@ def send_scheduled_raspi(aquarium_id, cycle, job_id):
 
     set_status = set_status_done_firebase(job_id)
     print(set_status)
+    
+
+
 
 
 def set_status_done_firebase(job_id: str):
-    """Mark a schedule document as completed."""
+    """Mark a schedule document as completed.
+
+    Args:
+        job_id: The unique id of the job (document id in the `Schedules` collection).
+
+    Returns:
+        A human-readable message confirming the completion status update.
+    """
     doc_ref = db.collection("Schedules").document(job_id)
-    doc_ref.update({"status": "done"})
-    return f"{job_id} is now successfully completed"
+    doc_ref.update({
+        "status" : "done"
+    })
+
+    return f"{job_id} is now succesfully completed"
 
 
 def find_schedule_by_time_and_aquarium(aquarium_id: int, schedule_time: str):
@@ -132,12 +171,17 @@ def find_schedule_by_time_and_aquarium(aquarium_id: int, schedule_time: str):
             st_dt = st
         elif isinstance(st, str):
             try:
+                # Try ISO format first
                 st_dt = datetime.fromisoformat(st)
             except ValueError:
                 try:
-                    time_part = re.sub(r"\s+UTC[+-]\d+$", "", st)
+                    # Handle Firestore timestamp format: "October 8, 2026 at 11:00:00 PM UTC+8"
+                    # Remove timezone info for parsing, we'll add it back
+                    time_part = re.sub(r'\s+UTC[+-]\d+$', '', st)
                     st_dt = datetime.strptime(time_part, "%B %d, %Y at %I:%M:%S %p")
-                    tz_match = re.search(r"UTC([+-]\d+)$", st)
+                    
+                    # Extract timezone offset if present
+                    tz_match = re.search(r'UTC([+-]\d+)$', st)
                     if tz_match:
                         offset_hours = int(tz_match.group(1))
                         tz = timezone(timedelta(hours=offset_hours))
@@ -151,6 +195,7 @@ def find_schedule_by_time_and_aquarium(aquarium_id: int, schedule_time: str):
             print(f"Unknown timestamp type: {type(st)}, value: {st}")
             continue
 
+        # Ensure timezone awareness
         if st_dt.tzinfo is None:
             st_dt = st_dt.replace(tzinfo=LOCAL_TZ)
 
@@ -160,6 +205,7 @@ def find_schedule_by_time_and_aquarium(aquarium_id: int, schedule_time: str):
     return None
 
 
+
 def delete_schedule_by_time(aquarium_id: int, schedule_time: str):
     """Delete a schedule for a specific aquarium at a given time."""
     try:
@@ -167,6 +213,7 @@ def delete_schedule_by_time(aquarium_id: int, schedule_time: str):
         if not doc_id:
             return jsonify({"error": f"No schedule found for aquarium {aquarium_id} at {schedule_time}"}), 404
 
+        # Remove APScheduler job if exists
         if scheduler:
             job = scheduler.get_job(doc_id)
             if job:
@@ -175,6 +222,7 @@ def delete_schedule_by_time(aquarium_id: int, schedule_time: str):
             else:
                 print(f"No APS job found for {doc_id}")
 
+        # Delete Firestore document
         db.collection("Schedules").document(doc_id).delete()
         print(f"Deleted Firestore document {doc_id}")
 
@@ -182,7 +230,10 @@ def delete_schedule_by_time(aquarium_id: int, schedule_time: str):
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+from datetime import datetime
 
+local_tz = tzlocal.get_localzone()
 
 def reschedule_all_jobs_from_firestore():
     """Recreate all pending Firestore schedules in APScheduler (after restart)."""
@@ -192,7 +243,7 @@ def reschedule_all_jobs_from_firestore():
     restored_count = 0
     skipped_past = 0
     skipped_duplicate = 0
-    now = datetime.now(LOCAL_TZ)
+    now = datetime.now(local_tz)
 
     for doc in docs:
         data = doc.to_dict()
@@ -203,6 +254,7 @@ def reschedule_all_jobs_from_firestore():
         schedule_time = data.get("schedule_time")
         status = data.get("status", "pending")
 
+        # Only reschedule pending jobs
         if status != "pending":
             continue
 
@@ -210,26 +262,30 @@ def reschedule_all_jobs_from_firestore():
             print(f"Skipping {job_id} — no schedule_time found.")
             continue
 
+        # Convert Firestore timestamp or string to datetime
         if isinstance(schedule_time, datetime):
-            scheduled_at = schedule_time.astimezone(LOCAL_TZ)
+            scheduled_at = schedule_time.astimezone(local_tz)
         else:
             try:
                 scheduled_at = datetime.fromisoformat(schedule_time)
-                scheduled_at = scheduled_at.astimezone(LOCAL_TZ)
+                scheduled_at = scheduled_at.astimezone(local_tz)
             except Exception as e:
                 print(f"Failed to parse schedule_time for {job_id}: {e}")
                 continue
 
+        # Skip jobs in the past
         if scheduled_at <= now:
             skipped_past += 1
             continue
 
+        # Skip duplicates
         existing_job = scheduler.get_job(job_id)
         if existing_job:
             print(f"Duplicate detected — Job {job_id} already exists. Skipping.")
             skipped_duplicate += 1
             continue
 
+        # Recreate APScheduler job
         scheduler.add_job(
             func=send_scheduled_raspi,
             trigger="date",
