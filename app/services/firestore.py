@@ -9,10 +9,13 @@ from datetime import datetime, timedelta, timezone
 import tzlocal
 from flask import jsonify
 import requests
+import pytz
 
 
 load_dotenv()
-LOCAL_TZ = tzlocal.get_localzone()
+tz_name = os.getenv("TZ", "Asia/Manila")
+LOCAL_TZ = pytz.timezone(tz_name)
+
 
 
 import os
