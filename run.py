@@ -1,20 +1,36 @@
-
-
-from app import create_app
+import logging
+import os
+import sys
+import traceback
+import pytz
+import atexit
+from datetime import datetime
 from flask_cors import CORS
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.events import EVENT_JOB_ERROR, EVENT_JOB_EXECUTED
-from datetime import datetime
+from app import create_app
 from app.services import firebase
 from app.services import firestore
-import pytz
-import os
-import atexit
-import sys
-import traceback
 
 # -----------------------
-# Setup Flask App
+# Logging Setup
+# -----------------------
+LOG_FORMAT = "[%(asctime)s] [%(levelname)s] %(message)s"
+LOG_LEVEL = logging.INFO
+
+logging.basicConfig(
+    level=LOG_LEVEL,
+    format=LOG_FORMAT,
+    handlers=[
+        logging.StreamHandler(),  # Console output
+        logging.FileHandler("server_debug.log", mode="a", encoding="utf-8")  # File log
+    ]
+)
+
+logger = logging.getLogger(__name__)
+
+# -----------------------
+# Flask App Setup
 # -----------------------
 app = create_app()
 CORS(app)
@@ -24,7 +40,7 @@ CORS(app)
 # -----------------------
 tz_name = os.getenv("TZ", "Asia/Manila")
 LOCAL_TZ = pytz.timezone(tz_name)
-print(f"[INIT] Server timezone: {tz_name}, Local time: {datetime.now(LOCAL_TZ)}")
+logger.info(f"Server timezone: {tz_name}, Local time: {datetime.now(LOCAL_TZ)}")
 
 # -----------------------
 # APScheduler Setup
@@ -32,19 +48,18 @@ print(f"[INIT] Server timezone: {tz_name}, Local time: {datetime.now(LOCAL_TZ)}"
 schedule_background = BackgroundScheduler(timezone=LOCAL_TZ, daemon=True)
 
 def debug_scheduler_heartbeat():
-    print(f"[HEARTBEAT] APScheduler alive at {datetime.now(LOCAL_TZ).strftime('%Y-%m-%d %H:%M:%S %Z')}")
+    logger.info(f"APScheduler heartbeat at {datetime.now(LOCAL_TZ).strftime('%Y-%m-%d %H:%M:%S %Z')}")
 
-# Job Listener (detects if jobs fail or complete)
+# Job Listener — detects errors or completions
 def job_listener(event):
     if event.exception:
-        print(f"[ERROR] Job {event.job_id} FAILED at {datetime.now(LOCAL_TZ)}")
-        traceback.print_exception(type(event.exception), event.exception, event.exception.__traceback__)
+        logger.exception(f"Job {event.job_id} FAILED at {datetime.now(LOCAL_TZ)}")
     else:
-        print(f"[INFO] Job {event.job_id} executed successfully at {datetime.now(LOCAL_TZ)}")
+        logger.info(f"Job {event.job_id} executed successfully at {datetime.now(LOCAL_TZ)}")
 
 schedule_background.add_listener(job_listener, EVENT_JOB_ERROR | EVENT_JOB_EXECUTED)
 
-# Add Heartbeat Job (every 10 seconds)
+# Heartbeat job (every 10 seconds)
 schedule_background.add_job(
     func=debug_scheduler_heartbeat,
     trigger="interval",
@@ -52,14 +67,16 @@ schedule_background.add_job(
     id="heartbeat_debug"
 )
 
-# Log APS startup and shutdown
-print("[INIT] Starting APScheduler...")
+# Start APS
+logger.info("Starting APScheduler...")
 schedule_background.start()
-print("[INIT] APScheduler started successfully.")
+logger.info("APScheduler started successfully.")
 
-# Detect when APS or process is shutting down
+# -----------------------
+# Shutdown Detection
+# -----------------------
 def on_exit():
-    print(f"[SHUTDOWN] APScheduler or process stopping at {datetime.now(LOCAL_TZ)}")
+    logger.warning(f"APScheduler or process stopping at {datetime.now(LOCAL_TZ)}")
 
 atexit.register(on_exit)
 
@@ -69,18 +86,30 @@ atexit.register(on_exit)
 firestore.scheduler = schedule_background
 try:
     firestore.reschedule_all_jobs_from_firestore()
+    logger.info("Restored all Firestore jobs successfully.")
 except Exception as e:
-    print("[ERROR] Failed to restore Firestore jobs:")
+    logger.error("Failed to restore Firestore jobs:")
     traceback.print_exception(type(e), e, e.__traceback__)
+
+# -----------------------
+# Status Route
+# -----------------------
+@app.route("/status")
+def status():
+    jobs = schedule_background.get_jobs()
+    return {
+        "status": "alive",
+        "job_count": len(jobs),
+        "jobs": [job.id for job in jobs]
+    }
 
 # -----------------------
 # Flask Server
 # -----------------------
 if __name__ == "__main__":
-    print("[INIT] Flask app starting...")
+    logger.info("Flask app starting...")
     try:
         app.run(host="0.0.0.0", port=5001)
     except Exception as e:
-        print("[ERROR] Flask crashed:")
-        traceback.print_exception(type(e), e, e.__traceback__)
+        logger.exception("Flask crashed:")
         sys.exit(1)
