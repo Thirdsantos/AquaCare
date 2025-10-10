@@ -84,7 +84,10 @@ def add_schedule_firestore(aquarium_id: int, cycle: int, schedule_time: datetime
     """
 
     if schedule_time.tzinfo is None:
-        schedule_time = schedule_time.replace(tzinfo=LOCAL_TZ)
+        schedule_time = LOCAL_TZ.localize(schedule_time)
+    else:
+        schedule_time = schedule_time.astimezone(LOCAL_TZ)
+
 
     db.collection("Schedules").document(job_id).set({
         "aquarium_id": aquarium_id,
