@@ -253,7 +253,6 @@ def add_schedule_firebase(aquarium_id: int, schedule: dict) -> dict:
             - "cycle" (int): Amount or cycle number for feeding.
             - "switch" (bool) : Tells if the alarm is on or off
             - "food" (str) : Tells what type of food for the fish
-            - "daily" (bool) : Tells if the schedule is daily or not
 
     Returns:
         dict: A dictionary containing the operation result with keys:
@@ -271,7 +270,6 @@ def add_schedule_firebase(aquarium_id: int, schedule: dict) -> dict:
     cycle = schedule["cycle"]
     switch = schedule["switch"]
     food = schedule["food"]
-    daily = schedule["daily"]
     duplicate = False
 
 
@@ -281,7 +279,7 @@ def add_schedule_firebase(aquarium_id: int, schedule: dict) -> dict:
             break
 
     if not duplicate:
-        schedule_ref.push({"time": new_time, "cycle" : cycle, "switch" : switch, "food" : food, "daily" : daily})
+        schedule_ref.push({"time": new_time, "cycle" : cycle, "switch" : switch, "food" : food})
         return {"status": "added", "time": new_time, "cycle": cycle, "switch" : switch}
     else:
         return {"status": "duplicate", "time": new_time, "switch" : switch}
