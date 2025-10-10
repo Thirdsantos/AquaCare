@@ -70,32 +70,23 @@ db = firestore.client()
 scheduler = None
 
 def add_schedule_firestore(aquarium_id: int, cycle: int, schedule_time: datetime, job_id: str) -> str:
-    """
-    Add a schedule document to Firestore.
-
-    Args:
-        aquarium_id (int): ID of the aquarium.
-        cycle (int): Feeding cycle or amount.
-        schedule_time (datetime): Localized datetime for the schedule.
-        job_id (str): Firestore document ID.
-
-    Returns:
-        str: Human-readable confirmation message.
-    """
+    """Add a schedule document to Firestore."""
 
     if schedule_time.tzinfo is None:
         schedule_time = LOCAL_TZ.localize(schedule_time)
     else:
         schedule_time = schedule_time.astimezone(LOCAL_TZ)
 
+    # 🔹 Convert to UTC before saving
+    schedule_time_utc = schedule_time.astimezone(pytz.UTC)
 
     db.collection("Schedules").document(job_id).set({
         "aquarium_id": aquarium_id,
         "cycle": cycle,
-        "schedule_time": schedule_time,
+        "schedule_time": schedule_time_utc,  # store UTC-safe version
         "status": "pending"
     })
-    return f" Schedule added: {job_id} for aquarium {aquarium_id} at {schedule_time.isoformat()}"
+    return f" Schedule added: {job_id} for aquarium {aquarium_id} at {schedule_time.isoformat()} (saved as {schedule_time_utc.isoformat()})"
 
 
 def create_schedule(aquarium_id: int, cycle: int, schedule_time: str):
@@ -268,6 +259,8 @@ from datetime import datetime
 
 def reschedule_all_jobs_from_firestore():
     """Recreate all pending Firestore schedules in APScheduler (after restart)."""
+    from datetime import datetime
+
     schedules_ref = db.collection("Schedules")
     docs = schedules_ref.stream()
 
@@ -275,7 +268,7 @@ def reschedule_all_jobs_from_firestore():
     skipped_past = 0
     skipped_duplicate = 0
     now = datetime.now(LOCAL_TZ)
-    print(f"Server timezone: {LOCAL_TZ}, Current time: {now}")
+    print(f"[INIT] Server timezone: {LOCAL_TZ}, Current time: {now}")
 
     for doc in docs:
         data = doc.to_dict()
@@ -283,64 +276,67 @@ def reschedule_all_jobs_from_firestore():
 
         aquarium_id = data.get("aquarium_id")
         cycle = data.get("cycle", 1)
-        schedule_time = data.get("schedule_time")
         status = data.get("status", "pending")
-        print(f"Found schedule {job_id} — Firestore time: {schedule_time}")
+        utc_time = data.get("schedule_time")
 
-        # Only reschedule pending jobs
+        print(f"\n[DEBUG] Found schedule {job_id} — Firestore time: {utc_time}")
+
+        # Skip non-pending jobs
         if status != "pending":
+            print(f"[SKIP] Job {job_id} not pending (status={status}).")
             continue
 
-        if not schedule_time:
-            print(f"Skipping {job_id} — no schedule_time found.")
+        # Skip missing schedule times
+        if not utc_time:
+            print(f"[SKIP] {job_id} — no schedule_time found.")
             continue
 
-        # Convert Firestore timestamp or string to datetime
-        if isinstance(schedule_time, datetime):
-            if schedule_time.tzinfo is None:
-                # Firestore timestamps are UTC by default
-                schedule_time = schedule_time.replace(tzinfo=pytz.UTC)
-            scheduled_at = schedule_time.astimezone(LOCAL_TZ)
-        else:
-            try:
-                scheduled_at = datetime.fromisoformat(schedule_time)
-                if scheduled_at.tzinfo is None:
-                    scheduled_at = pytz.UTC.localize(scheduled_at)
-                scheduled_at = scheduled_at.astimezone(LOCAL_TZ)
-            except Exception as e:
-                print(f"Failed to parse schedule_time for {job_id}: {e}")
-                continue
+        # --- Convert Firestore UTC time to local timezone ---
+        try:
+            if isinstance(utc_time, datetime):
+                # Firestore timestamps are usually UTC-aware
+                schedule_time = utc_time.astimezone(LOCAL_TZ)
+            else:
+                # If stored as ISO string, parse then localize
+                parsed_time = datetime.fromisoformat(utc_time)
+                if parsed_time.tzinfo is None:
+                    parsed_time = pytz.UTC.localize(parsed_time)
+                schedule_time = parsed_time.astimezone(LOCAL_TZ)
 
-        print(f"Parsed schedule_time localized: {scheduled_at}, Now: {now}")
+            print(f"[DEBUG] Converted Firestore UTC → Local: {utc_time} → {schedule_time}")
+        except Exception as e:
+            print(f"[ERROR] Failed to convert schedule_time for {job_id}: {e}")
+            continue
 
-        # Skip jobs in the past
-        if scheduled_at <= now:
-            print(f"Skipping {job_id} — scheduled time is in the past.")
+        # Skip jobs already in the past
+        if schedule_time <= now:
+            print(f"[SKIP] {job_id} — scheduled time {schedule_time} is in the past.")
             skipped_past += 1
             continue
 
-        # Skip duplicates
+        # Skip duplicate jobs already in APS
         existing_job = scheduler.get_job(job_id)
         if existing_job:
-            print(f"Duplicate detected — Job {job_id} already exists. Skipping.")
+            print(f"[SKIP] Duplicate — Job {job_id} already exists in scheduler.")
             skipped_duplicate += 1
             continue
 
-        # Recreate APScheduler job
+        # --- Add job back to APScheduler ---
         scheduler.add_job(
             func=send_scheduled_raspi,
             trigger="date",
-            run_date=scheduled_at,
+            run_date=schedule_time,
             args=[aquarium_id, cycle, job_id],
             id=job_id
         )
 
         restored_count += 1
-        print(f"✅ Rescheduled job {job_id} for {scheduled_at}")
+        print(f"[RESTORE] ✅ Job {job_id} rescheduled for {schedule_time}")
 
     print(
-        f"\nFinished rescheduling: "
+        f"\n[RESULT] Rescheduling done — "
         f"{restored_count} restored, "
         f"{skipped_past} skipped (past), "
         f"{skipped_duplicate} skipped (duplicate)."
     )
+
