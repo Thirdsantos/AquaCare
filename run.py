@@ -3,14 +3,16 @@ from flask_cors import CORS
 from apscheduler.schedulers.background import BackgroundScheduler
 from app.services import firebase
 from app.services import firestore
+from tzlocal import get_localzone
 
 
 
 app = create_app()
 
 CORS(app)
+LOCAL_TZ = get_localzone()
 
-schedule_background = BackgroundScheduler()
+schedule_background = BackgroundScheduler(timezone=str(LOCAL_TZ))
 schedule_background.start()
 firestore.scheduler = schedule_background
 firestore.reschedule_all_jobs_from_firestore()
