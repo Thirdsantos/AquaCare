@@ -233,8 +233,6 @@ def delete_schedule_by_time(aquarium_id: int, schedule_time: str):
     
 from datetime import datetime
 
-local_tz = tzlocal.get_localzone()
-
 def reschedule_all_jobs_from_firestore():
     """Recreate all pending Firestore schedules in APScheduler (after restart)."""
     schedules_ref = db.collection("Schedules")
@@ -243,7 +241,7 @@ def reschedule_all_jobs_from_firestore():
     restored_count = 0
     skipped_past = 0
     skipped_duplicate = 0
-    now = datetime.now(local_tz)
+    now = datetime.now(LOCAL_TZ)
 
     for doc in docs:
         data = doc.to_dict()
@@ -264,11 +262,11 @@ def reschedule_all_jobs_from_firestore():
 
         # Convert Firestore timestamp or string to datetime
         if isinstance(schedule_time, datetime):
-            scheduled_at = schedule_time.astimezone(local_tz)
+            scheduled_at = schedule_time.astimezone(LOCAL_TZ)
         else:
             try:
                 scheduled_at = datetime.fromisoformat(schedule_time)
-                scheduled_at = scheduled_at.astimezone(local_tz)
+                scheduled_at = scheduled_at.astimezone(LOCAL_TZ)
             except Exception as e:
                 print(f"Failed to parse schedule_time for {job_id}: {e}")
                 continue
