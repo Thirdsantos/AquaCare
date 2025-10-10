@@ -100,14 +100,28 @@ def add_schedule_firestore(aquarium_id: int, cycle: int, schedule_time: datetime
 
 def create_schedule(aquarium_id: int, cycle: int, schedule_time: str):
     """Create a Firestore schedule and register a one-time APScheduler job."""
+    from datetime import datetime
+
+    # 1️⃣ Server’s local time (actual system time)
+    server_now = datetime.now(LOCAL_TZ)
+    
+    # 2️⃣ Parse schedule_time string into datetime
     naive_time = datetime.strptime(schedule_time, "%Y-%m-%d %H:%M:%S")
     run_time = LOCAL_TZ.localize(naive_time)
+    
+    # 3️⃣ Debug info
+    print("\n[DEBUG] Creating Schedule:")
+    print(f"Server local time now:       {server_now.isoformat()}")
+    print(f"Requested schedule_time:     {schedule_time}")
+    print(f"Localized run_time for APS:  {run_time.isoformat()}")
+    print(f"Timezone used:               {LOCAL_TZ}")
 
     job_id = f"schedule_at_{run_time.strftime('%Y%m%d_%H%M%S')}"
 
     output = add_schedule_firestore(aquarium_id, cycle, run_time, job_id)
     print(output)
 
+    # 4️⃣ Add job to APScheduler
     scheduler.add_job(
         func=send_scheduled_raspi,
         trigger="date",
@@ -115,6 +129,13 @@ def create_schedule(aquarium_id: int, cycle: int, schedule_time: str):
         args=[aquarium_id, cycle, job_id],
         id=job_id
     )
+
+    # 5️⃣ Confirm job actually added
+    added_job = scheduler.get_job(job_id)
+    if added_job:
+        print(f"[DEBUG] ✅ APS Job added: {added_job.id}, Run time: {added_job.next_run_time}")
+    else:
+        print(f"[DEBUG] ❌ Failed to add job {job_id} to APScheduler.")
 
   
 def send_scheduled_raspi(aquarium_id, cycle, job_id):
