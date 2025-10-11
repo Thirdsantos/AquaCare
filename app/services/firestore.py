@@ -229,3 +229,72 @@ def reschedule_all_jobs_from_firestore():
         f"{executed_past} executed (past), "
         f"{skipped_duplicate} skipped (duplicate)."
     )
+
+# ─────────────────────────────
+# 🔹 Find & delete schedule by time (for API route compatibility)
+# ─────────────────────────────
+def find_schedule_by_time_and_aquarium(aquarium_id: int, schedule_time: str):
+    """Find a schedule document id by aquarium_id and local Manila schedule_time string.
+
+    schedule_time is expected as 'YYYY-%m-%d %H:%M:%S' in Asia/Manila.
+    We compare Firestore Timestamp (UTC) within a 1-second tolerance.
+    """
+    try:
+        target_local = datetime.strptime(schedule_time, "%Y-%m-%d %H:%M:%S").replace(tzinfo=LOCAL_TZ)
+    except Exception:
+        return None
+
+    target_utc = target_local.astimezone(timezone.utc)
+
+    docs = db.collection("Schedules").where("aquarium_id", "==", aquarium_id).stream()
+    for doc in docs:
+        data = doc.to_dict()
+        st = data.get("schedule_time")
+        if not st:
+            continue
+
+        if isinstance(st, datetime):
+            st_dt = st
+        elif isinstance(st, str):
+            # Legacy: stored as local Manila string
+            try:
+                st_dt = datetime.strptime(st, "%Y-%m-%d %H:%M:%S").replace(tzinfo=LOCAL_TZ)
+            except Exception:
+                continue
+        else:
+            continue
+
+        if st_dt.tzinfo is None:
+            # Assume UTC if naive (should not happen for Firestore Timestamp)
+            st_dt = st_dt.replace(tzinfo=timezone.utc)
+
+        # Compare in UTC
+        st_utc = st_dt.astimezone(timezone.utc)
+        if abs((st_utc - target_utc).total_seconds()) <= 1:
+            return doc.id
+
+    return None
+
+
+def delete_schedule_by_time(aquarium_id: int, schedule_time: str):
+    """Delete a schedule both from APScheduler and Firestore by local Manila time string."""
+    try:
+        doc_id = find_schedule_by_time_and_aquarium(aquarium_id, schedule_time)
+        if not doc_id:
+            return jsonify({"error": f"No schedule found for aquarium {aquarium_id} at {schedule_time}"}), 404
+
+        # Remove APScheduler job if it exists
+        if scheduler:
+            job = scheduler.get_job(doc_id)
+            if job:
+                scheduler.remove_job(doc_id)
+                print(f"[DELETE] Removed APS job {doc_id}")
+
+        # Delete Firestore document
+        db.collection("Schedules").document(doc_id).delete()
+        print(f"[DELETE] Deleted Firestore document {doc_id}")
+
+        return jsonify({"message": f"Successfully deleted schedule for aquarium {aquarium_id} at {schedule_time}"}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
