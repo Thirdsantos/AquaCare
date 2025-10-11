@@ -92,21 +92,23 @@ def create_schedule(aquarium_id: int, cycle: int, schedule_time: str):
     """
     server_now = datetime.now(LOCAL_TZ)
     naive_time = datetime.strptime(schedule_time, "%Y-%m-%d %H:%M:%S")
-    run_time = naive_time.replace(tzinfo=LOCAL_TZ)
+    run_time_local = naive_time.replace(tzinfo=LOCAL_TZ)
+    run_time_utc = run_time_local.astimezone(timezone.utc)
 
     print("\n[DEBUG] Creating Schedule:")
     print(f"Server local time now:       {server_now}")
     print(f"Requested schedule_time:     {schedule_time}")
-    print(f"Localized run_time for APS:  {run_time}")
+    print(f"Localized run_time for APS:  {run_time_local}")
+    print(f"UTC run_time for APS:        {run_time_utc}")
 
-    job_id = f"schedule_at_{run_time.strftime('%Y%m%d_%H%M%S')}"
-    output = add_schedule_firestore(aquarium_id, cycle, run_time, job_id)
+    job_id = f"schedule_at_{run_time_local.strftime('%Y%m%d_%H%M%S')}"
+    output = add_schedule_firestore(aquarium_id, cycle, run_time_local, job_id)
     print(output)
 
     scheduler.add_job(
         func=send_scheduled_raspi,
         trigger="date",
-        run_date=run_time,
+        run_date=run_time_utc,
         args=[aquarium_id, cycle, job_id],
         id=job_id,
         replace_existing=True,
@@ -184,12 +186,12 @@ def reschedule_all_jobs_from_firestore():
             if schedule_time.tzinfo is None:
                 # Assume UTC if naive timestamp somehow occurs
                 schedule_time = schedule_time.replace(tzinfo=timezone.utc)
-            schedule_time = schedule_time.astimezone(LOCAL_TZ)
+            schedule_time_local = schedule_time.astimezone(LOCAL_TZ)
         elif isinstance(schedule_field, str):
             # Backward-compat: previously stored as local Manila string
             try:
                 parsed_time = datetime.strptime(schedule_field, "%Y-%m-%d %H:%M:%S")
-                schedule_time = parsed_time.replace(tzinfo=LOCAL_TZ)
+                schedule_time_local = parsed_time.replace(tzinfo=LOCAL_TZ)
             except Exception as e:
                 print(f"[ERROR] Failed to parse schedule_time for {job_id}: {e}")
                 continue
@@ -197,10 +199,10 @@ def reschedule_all_jobs_from_firestore():
             print(f"[SKIP] {job_id}: unsupported schedule_time type {type(schedule_field)}")
             continue
 
-        if schedule_time <= now:
+        if schedule_time_local <= now:
             # Execute missed pending job immediately
             try:
-                print(f"[EXECUTE] Missed job {job_id} (scheduled {schedule_time}, now {now})")
+                print(f"[EXECUTE] Missed job {job_id} (scheduled {schedule_time_local}, now {now})")
                 send_scheduled_raspi(aquarium_id, cycle, job_id)
                 executed_past += 1
             except Exception as e:
@@ -212,16 +214,17 @@ def reschedule_all_jobs_from_firestore():
             print(f"[SKIP] Duplicate job {job_id}")
             continue
 
+        run_date_utc = schedule_time_local.astimezone(timezone.utc)
         scheduler.add_job(
             func=send_scheduled_raspi,
             trigger="date",
-            run_date=schedule_time,
+            run_date=run_date_utc,
             args=[aquarium_id, cycle, job_id],
             id=job_id,
             replace_existing=True,
         )
         restored_count += 1
-        print(f"[RESTORE] ✅ Job {job_id} scheduled for {schedule_time}")
+        print(f"[RESTORE] ✅ Job {job_id} scheduled for {schedule_time_local} (UTC {run_date_utc})")
 
     print(
         f"\n[RESULT] Rescheduling complete — "
