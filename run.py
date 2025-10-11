@@ -4,7 +4,7 @@ import sys
 import traceback
 import atexit
 from zoneinfo import ZoneInfo
-from datetime import datetime
+from datetime import datetime, timezone
 from flask_cors import CORS
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.events import EVENT_JOB_ERROR, EVENT_JOB_EXECUTED
@@ -34,6 +34,7 @@ logger = logging.getLogger(__name__)
 # -----------------------
 tz_name = os.getenv("TZ", "Asia/Manila")
 LOCAL_TZ = ZoneInfo(tz_name)
+SCHED_TZ = timezone.utc
 logger.info(f"Server timezone: {tz_name}, Local time: {datetime.now(LOCAL_TZ)}")
 
 # Diagnostic info
@@ -50,7 +51,7 @@ CORS(app)
 # APScheduler Setup
 # -----------------------
 scheduler = BackgroundScheduler(
-    timezone=LOCAL_TZ,
+    timezone=SCHED_TZ,
     daemon=True,
     job_defaults={
         "coalesce": True,
