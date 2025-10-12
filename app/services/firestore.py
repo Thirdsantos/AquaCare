@@ -62,25 +62,28 @@ scheduler = None
 # ─────────────────────────────
 # 🔹 Add schedule to Firestore (store string time)
 # ─────────────────────────────
-def add_schedule_firestore(aquarium_id: int, cycle: int, schedule_time: datetime, job_id: str) -> str:
+def add_schedule_firestore(aquarium_id: int, cycle: int, schedule_time: datetime | str, job_id: str) -> str:
     """Add a schedule document to Firestore.
 
-    We store schedule_time as Firestore Timestamp (UTC) to avoid TZ drift.
+    Store schedule_time as a string 'YYYY-%m-%d %H:%M:%S' in Asia/Manila.
     """
-    if schedule_time.tzinfo is None:
-        schedule_time = schedule_time.replace(tzinfo=LOCAL_TZ)
+    if isinstance(schedule_time, datetime):
+        if schedule_time.tzinfo is None:
+            schedule_time = schedule_time.replace(tzinfo=LOCAL_TZ)
+        else:
+            schedule_time = schedule_time.astimezone(LOCAL_TZ)
+        schedule_time_str = schedule_time.strftime("%Y-%m-%d %H:%M:%S")
     else:
-        schedule_time = schedule_time.astimezone(LOCAL_TZ)
-
-    schedule_time_utc = schedule_time.astimezone(timezone.utc)
+        # Assume valid string format already
+        schedule_time_str = schedule_time
 
     db.collection("Schedules").document(job_id).set({
         "aquarium_id": aquarium_id,
         "cycle": cycle,
-        "schedule_time": schedule_time_utc,  # Firestore Timestamp in UTC
+        "schedule_time": schedule_time_str,  # Stored as local Manila string
         "status": "pending"
     })
-    return f"Schedule added: {job_id} at {schedule_time.isoformat()}"
+    return f"Schedule added: {job_id} at {schedule_time_str}"
 
 # ─────────────────────────────
 # 🔹 Create schedule and register in APScheduler
@@ -102,7 +105,7 @@ def create_schedule(aquarium_id: int, cycle: int, schedule_time: str):
     print(f"UTC run_time for APS:        {run_time_utc}")
 
     job_id = f"schedule_at_{run_time_local.strftime('%Y%m%d_%H%M%S')}"
-    output = add_schedule_firestore(aquarium_id, cycle, run_time_local, job_id)
+    output = add_schedule_firestore(aquarium_id, cycle, schedule_time, job_id)
     print(output)
 
     scheduler.add_job(
@@ -180,21 +183,20 @@ def reschedule_all_jobs_from_firestore():
             continue
 
         # Normalize schedule_time to LOCAL_TZ for APScheduler
-        if isinstance(schedule_field, datetime):
-            # Firestore Timestamp -> aware datetime (usually UTC)
-            schedule_time = schedule_field
-            if schedule_time.tzinfo is None:
-                # Assume UTC if naive timestamp somehow occurs
-                schedule_time = schedule_time.replace(tzinfo=timezone.utc)
-            schedule_time_local = schedule_time.astimezone(LOCAL_TZ)
-        elif isinstance(schedule_field, str):
-            # Backward-compat: previously stored as local Manila string
+        if isinstance(schedule_field, str):
+            # Stored as local Manila string
             try:
                 parsed_time = datetime.strptime(schedule_field, "%Y-%m-%d %H:%M:%S")
                 schedule_time_local = parsed_time.replace(tzinfo=LOCAL_TZ)
             except Exception as e:
                 print(f"[ERROR] Failed to parse schedule_time for {job_id}: {e}")
                 continue
+        elif isinstance(schedule_field, datetime):
+            # Legacy: Firestore Timestamp (UTC)
+            schedule_time = schedule_field
+            if schedule_time.tzinfo is None:
+                schedule_time = schedule_time.replace(tzinfo=timezone.utc)
+            schedule_time_local = schedule_time.astimezone(LOCAL_TZ)
         else:
             print(f"[SKIP] {job_id}: unsupported schedule_time type {type(schedule_field)}")
             continue
@@ -237,45 +239,10 @@ def reschedule_all_jobs_from_firestore():
 # 🔹 Find & delete schedule by time (for API route compatibility)
 # ─────────────────────────────
 def find_schedule_by_time_and_aquarium(aquarium_id: int, schedule_time: str):
-    """Find a schedule document id by aquarium_id and local Manila schedule_time string.
-
-    schedule_time is expected as 'YYYY-%m-%d %H:%M:%S' in Asia/Manila.
-    We compare Firestore Timestamp (UTC) within a 1-second tolerance.
-    """
-    try:
-        target_local = datetime.strptime(schedule_time, "%Y-%m-%d %H:%M:%S").replace(tzinfo=LOCAL_TZ)
-    except Exception:
-        return None
-
-    target_utc = target_local.astimezone(timezone.utc)
-
-    docs = db.collection("Schedules").where("aquarium_id", "==", aquarium_id).stream()
+    """Find a schedule document id by aquarium_id and schedule_time string (exact match)."""
+    docs = db.collection("Schedules").where("aquarium_id", "==", aquarium_id).where("schedule_time", "==", schedule_time).stream()
     for doc in docs:
-        data = doc.to_dict()
-        st = data.get("schedule_time")
-        if not st:
-            continue
-
-        if isinstance(st, datetime):
-            st_dt = st
-        elif isinstance(st, str):
-            # Legacy: stored as local Manila string
-            try:
-                st_dt = datetime.strptime(st, "%Y-%m-%d %H:%M:%S").replace(tzinfo=LOCAL_TZ)
-            except Exception:
-                continue
-        else:
-            continue
-
-        if st_dt.tzinfo is None:
-            # Assume UTC if naive (should not happen for Firestore Timestamp)
-            st_dt = st_dt.replace(tzinfo=timezone.utc)
-
-        # Compare in UTC
-        st_utc = st_dt.astimezone(timezone.utc)
-        if abs((st_utc - target_utc).total_seconds()) <= 1:
-            return doc.id
-
+        return doc.id
     return None
 
 
