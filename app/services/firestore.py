@@ -129,26 +129,40 @@ def create_schedule(aquarium_id: int, cycle: int, schedule_time: str):
 def send_scheduled_raspi(aquarium_id, cycle, job_id):
     """Send scheduled task to Raspberry Pi and update Firestore after execution."""
     current_time = datetime.now(LOCAL_TZ).strftime("%Y-%m-%d %H:%M:%S")
-    print(f"[EXEC] send_scheduled_raspi START — local={current_time} job_id={job_id} aquarium_id={aquarium_id} cycle={cycle}")
+    print(f"[EXEC] send_scheduled_raspi START — local={current_time} job_id={job_id} aquarium_id={aquarium_id} cycle={cycle}", flush=True)
 
     target_url = f"https://pi-cam.alfreds.dev/{aquarium_id}/add_task"
     payload = {"aquarium_id": aquarium_id, "cycle": cycle, "job_id": job_id}
 
-    try:
-        print(f"[EXEC] HTTP POST -> {target_url} payload={payload}")
-        response = requests.post(target_url, json=payload, timeout=5)
-        response.raise_for_status()
-        print(f"[EXEC] ✅ HTTP OK status={response.status_code} body={response.text[:200]}")
-    except requests.RequestException as e:
-        print(f"[EXEC][ERROR] HTTP failed: {e}")
+    skip_http = os.getenv("SKIP_PI_HTTP", "false").lower() == "true"
+    if skip_http:
+        print(f"[EXEC] SKIP_PI_HTTP=true — skipping HTTP call to Tank-Pi", flush=True)
+    else:
+        try:
+            print(f"[EXEC] HTTP POST -> {target_url} payload={payload}", flush=True)
+            response = requests.post(target_url, json=payload, timeout=5)
+            response.raise_for_status()
+            print(f"[EXEC] ✅ HTTP OK status={response.status_code} body={response.text[:200]}", flush=True)
+        except requests.RequestException as e:
+            print(f"[EXEC][ERROR] HTTP failed: {e}", flush=True)
 
     try:
         result = set_status_done_firebase(job_id)
-        print(f"[EXEC] Firestore status updated: {result}")
+        print(f"[EXEC] Firestore status updated: {result}", flush=True)
     except Exception as e:
-        print(f"[EXEC][ERROR] Firestore update failed for {job_id}: {e}")
+        print(f"[EXEC][ERROR] Firestore update failed for {job_id}: {e}", flush=True)
 
-    print(f"[EXEC] send_scheduled_raspi END — job_id={job_id}")
+    # Best-effort: remove APS job if it still exists (e.g., when executed by poller)
+    try:
+        if scheduler:
+            job = scheduler.get_job(job_id)
+            if job:
+                scheduler.remove_job(job_id)
+                print(f"[EXEC] Removed APS job {job_id} after execution", flush=True)
+    except Exception as e:
+        print(f"[EXEC][WARN] Could not remove APS job {job_id}: {e}", flush=True)
+
+    print(f"[EXEC] send_scheduled_raspi END — job_id={job_id}", flush=True)
 
 # ─────────────────────────────
 # 🔹 Mark Firestore schedule done
