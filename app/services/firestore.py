@@ -159,6 +159,8 @@ def send_scheduled_raspi(aquarium_id, cycle, job_id):
             if job:
                 scheduler.remove_job(job_id)
                 print(f"[EXEC] Removed APS job {job_id} after execution", flush=True)
+            else:
+                print(f"[EXEC] No APS job {job_id} found to remove (may have been unscheduled or already removed)", flush=True)
     except Exception as e:
         print(f"[EXEC][WARN] Could not remove APS job {job_id}: {e}", flush=True)
 
@@ -265,8 +267,10 @@ def find_schedule_by_time_and_aquarium(aquarium_id: int, schedule_time: str):
 def delete_schedule_by_time(aquarium_id: int, schedule_time: str):
     """Delete a schedule both from APScheduler and Firestore by local Manila time string."""
     try:
+        print(f"[DELETE] Request to delete schedule aquarium_id={aquarium_id} schedule_time={schedule_time}", flush=True)
         doc_id = find_schedule_by_time_and_aquarium(aquarium_id, schedule_time)
         if not doc_id:
+            print(f"[DELETE] Not found for aquarium_id={aquarium_id} at {schedule_time}", flush=True)
             return jsonify({"error": f"No schedule found for aquarium {aquarium_id} at {schedule_time}"}), 404
 
         # Remove APScheduler job if it exists
@@ -275,6 +279,8 @@ def delete_schedule_by_time(aquarium_id: int, schedule_time: str):
             if job:
                 scheduler.remove_job(doc_id)
                 print(f"[DELETE] Removed APS job {doc_id}")
+            else:
+                print(f"[DELETE] No APS job found for {doc_id}")
 
         # Delete Firestore document
         db.collection("Schedules").document(doc_id).delete()

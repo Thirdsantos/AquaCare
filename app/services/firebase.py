@@ -1,5 +1,5 @@
 from . import db
-from app.services.notification import send_fcm_notification
+from app.services.notification import send_fcm_notification, send_aquanotifier_notification
 from datetime import datetime
 from .ai import ask_gemini_suggestions_ml
 
@@ -435,7 +435,8 @@ def compare_ml_firebase(mlPredictions, firebaseThresholds):
                     f"and the ML predicted value for the next hour is {predicted_ph}."
                 )
                 response_txt = ask_gemini_suggestions_ml(text)
-                print(f"Aquarium {aquarium_id} (pH): {response_txt}")
+                sensor = "PH"
+                send_aquanotifier_notification(aquarium_id, response_txt, sensor)
 
 
         if aquarium["temperature_notification"]:
@@ -449,7 +450,8 @@ def compare_ml_firebase(mlPredictions, firebaseThresholds):
                     f"and the ML predicted value for the next hour is {predicted_temp}°C."
                 )
                 response_txt = ask_gemini_suggestions_ml(text)
-                print(f"Aquarium {aquarium_id} (Temperature): {response_txt}")
+                sensor = "Temperature"
+                send_aquanotifier_notification(aquarium_id, response_txt, sensor)
 
 
         if aquarium["turbidity_notification"]:
@@ -463,7 +465,8 @@ def compare_ml_firebase(mlPredictions, firebaseThresholds):
                     f"and the ML predicted value for the next hour is {predicted_turbidity}."
                 )
                 response_txt = ask_gemini_suggestions_ml(text)
-                print(f"Aquarium {aquarium_id} (Turbidity): {response_txt}")
+                sensor = "Turbidity"
+                send_aquanotifier_notification(aquarium_id, response_txt, sensor)
 
 def set_daily_schedule_firebase(aquarium_id: int, daily: bool, time: str) -> dict:
     """

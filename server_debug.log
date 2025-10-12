@@ -1,0 +1,233 @@
+[2025-10-12 13:52:56,898] [INFO] Server timezone: Asia/Manila, Local time: 2025-10-12 13:52:56.898779+08:00
+[2025-10-12 13:52:57,080] [INFO] Adding job tentatively -- it will be properly scheduled when the scheduler starts
+[2025-10-12 13:52:57,082] [INFO] 🚀 Starting APScheduler...
+[2025-10-12 13:52:57,101] [INFO] Added job "due_poller" to job store "default"
+[2025-10-12 13:52:57,104] [INFO] Scheduler started
+[2025-10-12 13:52:57,171] [INFO] ✅ APScheduler started successfully.
+[2025-10-12 13:52:58,376] [INFO] 🔁 Restored all Firestore jobs successfully.
+[2025-10-12 13:52:58,380] [INFO] 🌐 Flask app starting...
+[2025-10-12 13:52:58,720] [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://192.168.1.65:5001
+[2025-10-12 13:52:58,725] [INFO] [33mPress CTRL+C to quit[0m
+[2025-10-12 13:53:07,084] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:53:17 UTC)" (scheduled at 2025-10-12 05:53:07.080560+00:00)
+[2025-10-12 13:53:07,567] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:53:17 UTC)" executed successfully
+[2025-10-12 13:53:07,569] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 13:53:07.569030+08:00
+[2025-10-12 13:53:17,083] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:53:27 UTC)" (scheduled at 2025-10-12 05:53:17.080560+00:00)
+[2025-10-12 13:53:17,198] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:53:27 UTC)" executed successfully
+[2025-10-12 13:53:17,199] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 13:53:17.199339+08:00
+[2025-10-12 13:53:27,087] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:53:37 UTC)" (scheduled at 2025-10-12 05:53:27.080560+00:00)
+[2025-10-12 13:53:27,201] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:53:37 UTC)" executed successfully
+[2025-10-12 13:53:27,202] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 13:53:27.202598+08:00
+[2025-10-12 13:53:37,085] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:53:47 UTC)" (scheduled at 2025-10-12 05:53:37.080560+00:00)
+[2025-10-12 13:53:37,825] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:53:47 UTC)" executed successfully
+[2025-10-12 13:53:37,827] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 13:53:37.827262+08:00
+[2025-10-12 13:53:45,283] [INFO] Added job "send_scheduled_raspi" to job store "default"
+[2025-10-12 13:53:45,285] [INFO] Removed job schedule_at_20251011_150700
+[2025-10-12 13:53:45,289] [WARNING] Run time of job "send_scheduled_raspi (trigger: date[2025-10-11 07:07:00 UTC], next run at: 2025-10-11 07:07:00 UTC)" was missed by 22:46:45.289221
+[2025-10-12 13:53:45,291] [INFO] 127.0.0.1 - - [12/Oct/2025 13:53:45] "POST /task/1 HTTP/1.1" 200 -
+[2025-10-12 13:53:47,087] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:53:57 UTC)" (scheduled at 2025-10-12 05:53:47.080560+00:00)
+[2025-10-12 13:53:50,542] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:53:57 UTC)" executed successfully
+[2025-10-12 13:53:50,543] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 13:53:50.543800+08:00
+[2025-10-12 13:53:57,089] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:54:07 UTC)" (scheduled at 2025-10-12 05:53:57.080560+00:00)
+[2025-10-12 13:53:57,192] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:54:07 UTC)" executed successfully
+[2025-10-12 13:53:57,194] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 13:53:57.194355+08:00
+[2025-10-12 13:54:07,090] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:54:17 UTC)" (scheduled at 2025-10-12 05:54:07.080560+00:00)
+[2025-10-12 13:54:07,184] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:54:17 UTC)" executed successfully
+[2025-10-12 13:54:07,185] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 13:54:07.185807+08:00
+[2025-10-12 13:54:17,086] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:54:27 UTC)" (scheduled at 2025-10-12 05:54:17.080560+00:00)
+[2025-10-12 13:54:17,197] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:54:27 UTC)" executed successfully
+[2025-10-12 13:54:17,198] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 13:54:17.198770+08:00
+[2025-10-12 13:54:27,089] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:54:37 UTC)" (scheduled at 2025-10-12 05:54:27.080560+00:00)
+[2025-10-12 13:54:27,239] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:54:37 UTC)" executed successfully
+[2025-10-12 13:54:27,240] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 13:54:27.240303+08:00
+[2025-10-12 13:54:37,083] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:54:47 UTC)" (scheduled at 2025-10-12 05:54:37.080560+00:00)
+[2025-10-12 13:54:37,165] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:54:47 UTC)" executed successfully
+[2025-10-12 13:54:37,167] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 13:54:37.167041+08:00
+[2025-10-12 13:54:41,775] [INFO] Added job "send_scheduled_raspi" to job store "default"
+[2025-10-12 13:54:41,776] [INFO] Removed job schedule_at_20251011_135400
+[2025-10-12 13:54:41,777] [WARNING] Run time of job "send_scheduled_raspi (trigger: date[2025-10-11 05:54:00 UTC], next run at: 2025-10-11 05:54:00 UTC)" was missed by 1 day, 0:00:41.777018
+[2025-10-12 13:54:41,777] [INFO] 127.0.0.1 - - [12/Oct/2025 13:54:41] "POST /task/1 HTTP/1.1" 200 -
+[2025-10-12 13:54:47,086] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:54:57 UTC)" (scheduled at 2025-10-12 05:54:47.080560+00:00)
+[2025-10-12 13:54:48,310] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:54:57 UTC)" executed successfully
+[2025-10-12 13:54:48,312] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 13:54:48.311983+08:00
+[2025-10-12 13:54:57,087] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:55:07 UTC)" (scheduled at 2025-10-12 05:54:57.080560+00:00)
+[2025-10-12 13:54:57,179] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:55:07 UTC)" executed successfully
+[2025-10-12 13:54:57,180] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 13:54:57.180711+08:00
+[2025-10-12 13:55:07,093] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:55:17 UTC)" (scheduled at 2025-10-12 05:55:07.080560+00:00)
+[2025-10-12 13:55:07,237] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:55:17 UTC)" executed successfully
+[2025-10-12 13:55:07,238] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 13:55:07.238817+08:00
+[2025-10-12 13:55:17,087] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:55:27 UTC)" (scheduled at 2025-10-12 05:55:17.080560+00:00)
+[2025-10-12 13:55:17,213] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:55:27 UTC)" executed successfully
+[2025-10-12 13:55:17,214] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 13:55:17.214495+08:00
+[2025-10-12 13:55:27,082] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:55:37 UTC)" (scheduled at 2025-10-12 05:55:27.080560+00:00)
+[2025-10-12 13:55:27,214] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:55:37 UTC)" executed successfully
+[2025-10-12 13:55:27,216] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 13:55:27.216531+08:00
+[2025-10-12 13:55:37,091] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:55:47 UTC)" (scheduled at 2025-10-12 05:55:37.080560+00:00)
+[2025-10-12 13:55:37,224] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:55:47 UTC)" executed successfully
+[2025-10-12 13:55:37,226] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 13:55:37.225950+08:00
+[2025-10-12 13:55:47,096] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:55:57 UTC)" (scheduled at 2025-10-12 05:55:47.080560+00:00)
+[2025-10-12 13:55:47,370] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:55:57 UTC)" executed successfully
+[2025-10-12 13:55:47,372] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 13:55:47.372320+08:00
+[2025-10-12 13:55:56,143] [INFO] Added job "send_scheduled_raspi" to job store "default"
+[2025-10-12 13:55:56,145] [INFO] Removed job schedule_at_20251011_135700
+[2025-10-12 13:55:56,146] [WARNING] Run time of job "send_scheduled_raspi (trigger: date[2025-10-11 05:57:00 UTC], next run at: 2025-10-11 05:57:00 UTC)" was missed by 23:58:56.145970
+[2025-10-12 13:55:56,150] [INFO] 127.0.0.1 - - [12/Oct/2025 13:55:56] "POST /task/1 HTTP/1.1" 200 -
+[2025-10-12 13:55:57,097] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:56:07 UTC)" (scheduled at 2025-10-12 05:55:57.080560+00:00)
+[2025-10-12 13:55:57,950] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:56:07 UTC)" executed successfully
+[2025-10-12 13:55:57,951] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 13:55:57.951188+08:00
+[2025-10-12 13:56:07,089] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:56:17 UTC)" (scheduled at 2025-10-12 05:56:07.080560+00:00)
+[2025-10-12 13:56:07,207] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:56:17 UTC)" executed successfully
+[2025-10-12 13:56:07,209] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 13:56:07.208964+08:00
+[2025-10-12 13:56:17,088] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:56:27 UTC)" (scheduled at 2025-10-12 05:56:17.080560+00:00)
+[2025-10-12 13:56:17,283] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:56:27 UTC)" executed successfully
+[2025-10-12 13:56:17,284] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 13:56:17.284390+08:00
+[2025-10-12 13:56:27,091] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:56:37 UTC)" (scheduled at 2025-10-12 05:56:27.080560+00:00)
+[2025-10-12 13:56:27,175] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:56:37 UTC)" executed successfully
+[2025-10-12 13:56:27,176] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 13:56:27.176652+08:00
+[2025-10-12 13:56:37,082] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:56:47 UTC)" (scheduled at 2025-10-12 05:56:37.080560+00:00)
+[2025-10-12 13:56:37,162] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:56:47 UTC)" executed successfully
+[2025-10-12 13:56:37,163] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 13:56:37.163813+08:00
+[2025-10-12 13:56:47,090] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:56:57 UTC)" (scheduled at 2025-10-12 05:56:47.080560+00:00)
+[2025-10-12 13:56:48,134] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:56:57 UTC)" executed successfully
+[2025-10-12 13:56:48,136] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 13:56:48.135965+08:00
+[2025-10-12 13:56:57,118] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:57:07 UTC)" (scheduled at 2025-10-12 05:56:57.080560+00:00)
+[2025-10-12 13:56:58,839] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:57:07 UTC)" executed successfully
+[2025-10-12 13:56:58,877] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 13:56:58.877100+08:00
+[2025-10-12 13:57:07,087] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:57:17 UTC)" (scheduled at 2025-10-12 05:57:07.080560+00:00)
+[2025-10-12 13:57:09,122] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:57:17 UTC)" executed successfully
+[2025-10-12 13:57:09,125] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 13:57:09.125148+08:00
+[2025-10-12 13:57:17,095] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:57:27 UTC)" (scheduled at 2025-10-12 05:57:17.080560+00:00)
+[2025-10-12 13:57:18,529] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:57:27 UTC)" executed successfully
+[2025-10-12 13:57:18,530] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 13:57:18.530379+08:00
+[2025-10-12 13:57:27,084] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:57:37 UTC)" (scheduled at 2025-10-12 05:57:27.080560+00:00)
+[2025-10-12 13:57:29,918] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:57:37 UTC)" executed successfully
+[2025-10-12 13:57:29,919] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 13:57:29.919875+08:00
+[2025-10-12 13:57:37,094] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:57:47 UTC)" (scheduled at 2025-10-12 05:57:37.080560+00:00)
+[2025-10-12 13:57:43,528] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:57:47 UTC)" executed successfully
+[2025-10-12 13:57:43,529] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 13:57:43.529740+08:00
+[2025-10-12 13:57:47,093] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:57:57 UTC)" (scheduled at 2025-10-12 05:57:47.080560+00:00)
+[2025-10-12 13:57:51,370] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:57:57 UTC)" executed successfully
+[2025-10-12 13:57:51,372] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 13:57:51.371987+08:00
+[2025-10-12 13:57:57,094] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:58:07 UTC)" (scheduled at 2025-10-12 05:57:57.080560+00:00)
+[2025-10-12 13:57:59,678] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:58:07 UTC)" executed successfully
+[2025-10-12 13:57:59,680] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 13:57:59.680156+08:00
+[2025-10-12 13:58:07,085] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:58:17 UTC)" (scheduled at 2025-10-12 05:58:07.080560+00:00)
+[2025-10-12 13:58:12,110] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:58:17 UTC)" executed successfully
+[2025-10-12 13:58:12,112] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 13:58:12.111998+08:00
+[2025-10-12 13:58:17,095] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:58:27 UTC)" (scheduled at 2025-10-12 05:58:17.080560+00:00)
+[2025-10-12 13:58:17,816] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:58:27 UTC)" executed successfully
+[2025-10-12 13:58:17,817] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 13:58:17.817724+08:00
+[2025-10-12 13:58:27,092] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:58:37 UTC)" (scheduled at 2025-10-12 05:58:27.080560+00:00)
+[2025-10-12 13:58:27,669] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:58:37 UTC)" executed successfully
+[2025-10-12 13:58:27,671] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 13:58:27.671285+08:00
+[2025-10-12 13:58:37,115] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:58:47 UTC)" (scheduled at 2025-10-12 05:58:37.080560+00:00)
+[2025-10-12 13:58:37,296] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:58:47 UTC)" executed successfully
+[2025-10-12 13:58:37,315] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 13:58:37.315777+08:00
+[2025-10-12 13:58:47,095] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:58:57 UTC)" (scheduled at 2025-10-12 05:58:47.080560+00:00)
+[2025-10-12 13:58:47,193] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:58:57 UTC)" executed successfully
+[2025-10-12 13:58:47,194] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 13:58:47.194559+08:00
+[2025-10-12 13:58:57,084] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:59:07 UTC)" (scheduled at 2025-10-12 05:58:57.080560+00:00)
+[2025-10-12 13:58:57,702] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:59:07 UTC)" executed successfully
+[2025-10-12 13:58:57,703] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 13:58:57.703863+08:00
+[2025-10-12 13:59:07,091] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:59:17 UTC)" (scheduled at 2025-10-12 05:59:07.080560+00:00)
+[2025-10-12 13:59:07,184] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:59:17 UTC)" executed successfully
+[2025-10-12 13:59:07,187] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 13:59:07.186982+08:00
+[2025-10-12 13:59:17,088] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:59:27 UTC)" (scheduled at 2025-10-12 05:59:17.080560+00:00)
+[2025-10-12 13:59:17,217] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:59:27 UTC)" executed successfully
+[2025-10-12 13:59:17,219] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 13:59:17.219304+08:00
+[2025-10-12 13:59:27,084] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:59:37 UTC)" (scheduled at 2025-10-12 05:59:27.080560+00:00)
+[2025-10-12 13:59:27,153] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:59:37 UTC)" executed successfully
+[2025-10-12 13:59:27,153] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 13:59:27.153920+08:00
+[2025-10-12 13:59:37,108] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:59:47 UTC)" (scheduled at 2025-10-12 05:59:37.080560+00:00)
+[2025-10-12 13:59:37,664] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:59:47 UTC)" executed successfully
+[2025-10-12 13:59:37,667] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 13:59:37.666933+08:00
+[2025-10-12 13:59:47,095] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:59:57 UTC)" (scheduled at 2025-10-12 05:59:47.080560+00:00)
+[2025-10-12 13:59:47,259] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 05:59:57 UTC)" executed successfully
+[2025-10-12 13:59:47,271] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 13:59:47.270827+08:00
+[2025-10-12 13:59:57,092] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:00:07 UTC)" (scheduled at 2025-10-12 05:59:57.080560+00:00)
+[2025-10-12 13:59:57,176] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:00:07 UTC)" executed successfully
+[2025-10-12 13:59:57,177] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 13:59:57.177094+08:00
+[2025-10-12 14:00:07,349] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:00:17 UTC)" (scheduled at 2025-10-12 06:00:07.080560+00:00)
+[2025-10-12 14:00:07,698] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:00:17 UTC)" executed successfully
+[2025-10-12 14:00:07,805] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 14:00:07.805855+08:00
+[2025-10-12 14:00:08,407] [INFO] Added job "send_scheduled_raspi" to job store "default"
+[2025-10-12 14:00:08,409] [INFO] 127.0.0.1 - - [12/Oct/2025 14:00:08] "POST /task/1 HTTP/1.1" 200 -
+[2025-10-12 14:00:17,139] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:00:27 UTC)" (scheduled at 2025-10-12 06:00:17.080560+00:00)
+[2025-10-12 14:00:17,283] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:00:27 UTC)" executed successfully
+[2025-10-12 14:00:17,285] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 14:00:17.285037+08:00
+[2025-10-12 14:00:27,098] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:00:37 UTC)" (scheduled at 2025-10-12 06:00:27.080560+00:00)
+[2025-10-12 14:00:27,188] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:00:37 UTC)" executed successfully
+[2025-10-12 14:00:27,189] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 14:00:27.189456+08:00
+[2025-10-12 14:00:37,088] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:00:47 UTC)" (scheduled at 2025-10-12 06:00:37.080560+00:00)
+[2025-10-12 14:00:37,170] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:00:47 UTC)" executed successfully
+[2025-10-12 14:00:37,171] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 14:00:37.171589+08:00
+[2025-10-12 14:00:47,092] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:00:57 UTC)" (scheduled at 2025-10-12 06:00:47.080560+00:00)
+[2025-10-12 14:00:47,227] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:00:57 UTC)" executed successfully
+[2025-10-12 14:00:47,228] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 14:00:47.228280+08:00
+[2025-10-12 14:00:57,092] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:01:07 UTC)" (scheduled at 2025-10-12 06:00:57.080560+00:00)
+[2025-10-12 14:00:57,173] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:01:07 UTC)" executed successfully
+[2025-10-12 14:00:57,175] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 14:00:57.174962+08:00
+[2025-10-12 14:01:00,004] [INFO] Removed job schedule_at_20251012_140100
+[2025-10-12 14:01:00,004] [INFO] Running job "send_scheduled_raspi (trigger: date[2025-10-12 06:01:00 UTC], next run at: 2025-10-12 06:01:00 UTC)" (scheduled at 2025-10-12 06:01:00+00:00)
+[2025-10-12 14:01:00,479] [INFO] Job "send_scheduled_raspi (trigger: date[2025-10-12 06:01:00 UTC], next run at: 2025-10-12 06:01:00 UTC)" executed successfully
+[2025-10-12 14:01:00,480] [INFO] ✅ Job schedule_at_20251012_140100 executed successfully at 2025-10-12 14:01:00.480729+08:00
+[2025-10-12 14:01:07,095] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:01:17 UTC)" (scheduled at 2025-10-12 06:01:07.080560+00:00)
+[2025-10-12 14:01:07,595] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:01:17 UTC)" executed successfully
+[2025-10-12 14:01:07,598] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 14:01:07.598110+08:00
+[2025-10-12 14:01:17,084] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:01:27 UTC)" (scheduled at 2025-10-12 06:01:17.080560+00:00)
+[2025-10-12 14:01:17,266] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:01:27 UTC)" executed successfully
+[2025-10-12 14:01:17,268] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 14:01:17.267988+08:00
+[2025-10-12 14:01:27,089] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:01:37 UTC)" (scheduled at 2025-10-12 06:01:27.080560+00:00)
+[2025-10-12 14:01:27,247] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:01:37 UTC)" executed successfully
+[2025-10-12 14:01:27,248] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 14:01:27.248041+08:00
+[2025-10-12 14:01:37,085] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:01:47 UTC)" (scheduled at 2025-10-12 06:01:37.080560+00:00)
+[2025-10-12 14:01:37,896] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:01:47 UTC)" executed successfully
+[2025-10-12 14:01:37,902] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 14:01:37.902118+08:00
+[2025-10-12 14:01:47,095] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:01:57 UTC)" (scheduled at 2025-10-12 06:01:47.080560+00:00)
+[2025-10-12 14:01:47,897] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:01:57 UTC)" executed successfully
+[2025-10-12 14:01:47,901] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 14:01:47.901282+08:00
+[2025-10-12 14:01:57,086] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:02:07 UTC)" (scheduled at 2025-10-12 06:01:57.080560+00:00)
+[2025-10-12 14:01:58,000] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:02:07 UTC)" executed successfully
+[2025-10-12 14:01:58,004] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 14:01:58.003671+08:00
+[2025-10-12 14:02:07,082] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:02:17 UTC)" (scheduled at 2025-10-12 06:02:07.080560+00:00)
+[2025-10-12 14:02:09,066] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:02:17 UTC)" executed successfully
+[2025-10-12 14:02:09,069] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 14:02:09.068969+08:00
+[2025-10-12 14:02:17,090] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:02:27 UTC)" (scheduled at 2025-10-12 06:02:17.080560+00:00)
+[2025-10-12 14:02:18,877] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:02:27 UTC)" executed successfully
+[2025-10-12 14:02:18,879] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 14:02:18.879709+08:00
+[2025-10-12 14:02:27,086] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:02:37 UTC)" (scheduled at 2025-10-12 06:02:27.080560+00:00)
+[2025-10-12 14:02:29,621] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:02:37 UTC)" executed successfully
+[2025-10-12 14:02:29,622] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 14:02:29.622818+08:00
+[2025-10-12 14:02:37,081] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:02:47 UTC)" (scheduled at 2025-10-12 06:02:37.080560+00:00)
+[2025-10-12 14:02:39,121] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:02:47 UTC)" executed successfully
+[2025-10-12 14:02:39,122] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 14:02:39.122653+08:00
+[2025-10-12 14:02:47,084] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:02:57 UTC)" (scheduled at 2025-10-12 06:02:47.080560+00:00)
+[2025-10-12 14:02:47,881] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:02:57 UTC)" executed successfully
+[2025-10-12 14:02:47,883] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 14:02:47.883009+08:00
+[2025-10-12 14:02:57,095] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:03:07 UTC)" (scheduled at 2025-10-12 06:02:57.080560+00:00)
+[2025-10-12 14:02:59,652] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:03:07 UTC)" executed successfully
+[2025-10-12 14:02:59,655] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 14:02:59.655205+08:00
+[2025-10-12 14:03:07,087] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:03:17 UTC)" (scheduled at 2025-10-12 06:03:07.080560+00:00)
+[2025-10-12 14:03:09,669] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:03:17 UTC)" executed successfully
+[2025-10-12 14:03:09,681] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 14:03:09.681407+08:00
+[2025-10-12 14:03:17,090] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:03:27 UTC)" (scheduled at 2025-10-12 06:03:17.080560+00:00)
+[2025-10-12 14:03:18,301] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:03:27 UTC)" executed successfully
+[2025-10-12 14:03:18,307] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 14:03:18.306864+08:00
+[2025-10-12 14:03:27,101] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:03:37 UTC)" (scheduled at 2025-10-12 06:03:27.080560+00:00)
+[2025-10-12 14:03:28,672] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:03:37 UTC)" executed successfully
+[2025-10-12 14:03:28,673] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 14:03:28.673562+08:00
+[2025-10-12 14:03:37,102] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:03:47 UTC)" (scheduled at 2025-10-12 06:03:37.080560+00:00)
+[2025-10-12 14:03:39,450] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:03:47 UTC)" executed successfully
+[2025-10-12 14:03:39,452] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 14:03:39.452688+08:00
+[2025-10-12 14:03:47,082] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:03:57 UTC)" (scheduled at 2025-10-12 06:03:47.080560+00:00)
+[2025-10-12 14:03:49,142] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:03:57 UTC)" executed successfully
+[2025-10-12 14:03:49,148] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 14:03:49.148791+08:00
+[2025-10-12 14:03:57,084] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:04:07 UTC)" (scheduled at 2025-10-12 06:03:57.080560+00:00)
+[2025-10-12 14:03:58,795] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:04:07 UTC)" executed successfully
+[2025-10-12 14:03:58,799] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 14:03:58.799726+08:00
+[2025-10-12 14:04:07,090] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:04:17 UTC)" (scheduled at 2025-10-12 06:04:07.080560+00:00)
+[2025-10-12 14:04:12,255] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:04:17 UTC)" executed successfully
+[2025-10-12 14:04:12,256] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 14:04:12.256738+08:00
+[2025-10-12 14:04:14,393] [WARNING] ⚠️ APScheduler or process stopping at 2025-10-12 14:04:14.393736+08:00
