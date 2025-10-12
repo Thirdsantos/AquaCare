@@ -61,8 +61,7 @@ scheduler = BackgroundScheduler(
     },
 )
 
-def debug_scheduler_heartbeat():
-    logger.info(f"💓 APScheduler heartbeat at {datetime.now(LOCAL_TZ).strftime('%Y-%m-%d %H:%M:%S %Z')}")
+def due_poller():
     # Fallback: poll Firestore for any pending jobs that are due
     try:
         firestore.process_due_pending_jobs()
@@ -76,13 +75,13 @@ def job_listener(event):
     else:
         logger.info(f"✅ Job {event.job_id} executed successfully at {datetime.now(LOCAL_TZ)}")
 
-# Register listeners and heartbeat job
+# Register listeners and due poller
 scheduler.add_listener(job_listener, EVENT_JOB_ERROR | EVENT_JOB_EXECUTED)
 scheduler.add_job(
-    func=debug_scheduler_heartbeat,
+    func=due_poller,
     trigger="interval",
     seconds=10,
-    id="heartbeat_debug",
+    id="due_poller",
     replace_existing=True
 )
 

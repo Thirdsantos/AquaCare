@@ -129,24 +129,26 @@ def create_schedule(aquarium_id: int, cycle: int, schedule_time: str):
 def send_scheduled_raspi(aquarium_id, cycle, job_id):
     """Send scheduled task to Raspberry Pi and update Firestore after execution."""
     current_time = datetime.now(LOCAL_TZ).strftime("%Y-%m-%d %H:%M:%S")
-    print(f"[DEBUG] Job Triggered — Time now: {current_time}, Job ID: {job_id}")
+    print(f"[EXEC] send_scheduled_raspi START — local={current_time} job_id={job_id} aquarium_id={aquarium_id} cycle={cycle}")
 
     target_url = f"https://pi-cam.alfreds.dev/{aquarium_id}/add_task"
     payload = {"aquarium_id": aquarium_id, "cycle": cycle, "job_id": job_id}
 
     try:
-        print(f"[DEBUG] Sending POST to {target_url} with payload: {payload}")
+        print(f"[EXEC] HTTP POST -> {target_url} payload={payload}")
         response = requests.post(target_url, json=payload, timeout=5)
         response.raise_for_status()
-        print(f"[DEBUG] ✅ Task sent successfully — Status: {response.status_code}")
+        print(f"[EXEC] ✅ HTTP OK status={response.status_code} body={response.text[:200]}")
     except requests.RequestException as e:
-        print(f"[ERROR] Failed to send task to Raspberry Pi: {e}")
+        print(f"[EXEC][ERROR] HTTP failed: {e}")
 
     try:
         result = set_status_done_firebase(job_id)
-        print(f"[DEBUG] Firestore update result: {result}")
+        print(f"[EXEC] Firestore status updated: {result}")
     except Exception as e:
-        print(f"[ERROR] Failed to update Firestore status for {job_id}: {e}")
+        print(f"[EXEC][ERROR] Firestore update failed for {job_id}: {e}")
+
+    print(f"[EXEC] send_scheduled_raspi END — job_id={job_id}")
 
 # ─────────────────────────────
 # 🔹 Mark Firestore schedule done
