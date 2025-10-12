@@ -63,6 +63,11 @@ scheduler = BackgroundScheduler(
 
 def debug_scheduler_heartbeat():
     logger.info(f"💓 APScheduler heartbeat at {datetime.now(LOCAL_TZ).strftime('%Y-%m-%d %H:%M:%S %Z')}")
+    # Fallback: poll Firestore for any pending jobs that are due
+    try:
+        firestore.process_due_pending_jobs()
+    except Exception as e:
+        logger.warning(f"poller error: {e}")
 
 def job_listener(event):
     """Log job success/failure."""

@@ -268,3 +268,41 @@ def delete_schedule_by_time(aquarium_id: int, schedule_time: str):
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+# ─────────────────────────────
+# 🔹 Safety poller: execute any pending jobs that are due (fallback)
+# ─────────────────────────────
+def process_due_pending_jobs():
+    """Fallback guard: find pending schedules whose Manila time is <= now and execute them.
+
+    This ensures correctness if an APS 'date' job is missed due to infra nuances.
+    """
+    now_local = datetime.now(LOCAL_TZ)
+    now_str = now_local.strftime("%Y-%m-%d %H:%M:%S")
+
+    try:
+        docs = db.collection("Schedules").where("status", "==", "pending").stream()
+        checked = 0
+        executed = 0
+        for doc in docs:
+            data = doc.to_dict()
+            job_id = doc.id
+            st = data.get("schedule_time")
+            aquarium_id = data.get("aquarium_id")
+            cycle = data.get("cycle", 1)
+            if not st or not aquarium_id:
+                continue
+
+            checked += 1
+            # Lexicographic comparison works with 'YYYY-MM-DD HH:MM:SS'
+            if isinstance(st, str) and st <= now_str:
+                print(f"[POLL] Executing due job {job_id} (scheduled {st}, now {now_str})")
+                try:
+                    send_scheduled_raspi(aquarium_id, cycle, job_id)
+                    executed += 1
+                except Exception as e:
+                    print(f"[POLL][ERROR] Failed executing job {job_id}: {e}")
+        if checked:
+            print(f"[POLL] Checked {checked} pending; executed {executed} due jobs.")
+    except Exception as e:
+        print(f"[POLL][ERROR] {e}")
