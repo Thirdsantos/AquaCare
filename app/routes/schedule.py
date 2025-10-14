@@ -123,6 +123,7 @@ def update_daily(aquarium_id, time, switch):
 def add_task(aquarium_id):
     json_req = request.get_json()
     schedule_time = json_req.get("schedule_time")
+    food_type = json_req.get("food")
     try:
         # Validate format 'YYYY-MM-DD HH:MM:SS' in Asia/Manila local time
         datetime.strptime(schedule_time, "%Y-%m-%d %H:%M:%S")
@@ -132,7 +133,8 @@ def add_task(aquarium_id):
     create_schedule(
         aquarium_id=aquarium_id,
         cycle=json_req["cycle"],
-        schedule_time=schedule_time
+        schedule_time=schedule_time,
+        food = food_type
     )
     return jsonify({"message": "Sucessfully added the schedule"})
 
@@ -141,6 +143,6 @@ def delete_task(aquarium_id):
     json_req = request.get_json()
     output = delete_schedule_by_time(aquarium_id= aquarium_id, schedule_time= json_req["schedule_time"])
 
-    return jsonify({"message": "Sucessfully remove the schedule"})
+    return output
 
 

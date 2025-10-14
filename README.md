@@ -1,27 +1,33 @@
 # AquaCare: Smart Aquarium Monitoring System
 
-**AquaCare** is a smart aquarium monitoring system that tracks and manages key environmental parameters — **pH**, **temperature**, and **turbidity** — to ensure a healthy aquatic environment.
+**AquaCare** is a smart aquarium monitoring and automation system. It ingests real‑time water data (**pH**, **temperature**, **turbidity**), computes analytics, triggers alerts, runs one‑time/daily schedules for feeding, and exposes AI/ML tools to assist in husbandry decisions.
 
-The backend is built with **Flask**, stores telemetry in **Firebase Realtime Database**, schedules and tracks feeding tasks in **Firestore** + **APScheduler**, sends alerts via **Firebase Cloud Messaging (FCM)**, exposes an **AI** endpoint backed by Gemini, and computes **hourly and daily analytics**. It also supports dispatching scheduled feed commands to a Tank-Pi device.
+The backend is built with **Flask**. It writes telemetry to **Firebase Realtime Database**, manages one‑time feeding tasks in **Firestore**, schedules execution with **APScheduler** (UTC internally, Asia/Manila inputs), sends alerts via **Firebase Cloud Messaging (FCM)**, integrates an **AI** endpoint backed by Gemini, and can dispatch scheduled feed commands (with food type and cycle) to a Tank‑Pi device.
 
 ---
 
 ## Features
 
-- **Sensor ingestion**: Real-time sensor data API with threshold checks and alerts.
-- **Analytics**: Hourly logs roll up into daily averages with retention.
-- **AI assistant**: Q&A about water quality with optional image input.
-- **Scheduling**: Auto-feeder schedules saved in Firebase, plus one-time tasks in Firestore with APScheduler recovery after restarts.
-- **Notifications**: FCM alerts when readings cross thresholds with edge de-duplication flags.
-- **Tank-Pi integration**: Server dispatches scheduled feed tasks to Tank-Pi HTTP endpoint.
+- **Sensor ingestion**: Real-time sensor data API with threshold checks and push alerts.
+- **Analytics**: Hourly logs aggregate into daily averages with retention.
+- **AI assistant**: Q&A about water quality with optional image input (Gemini).
+- **Machine learning**: Compare predicted water parameters vs thresholds and get guidance.
+- **Scheduling**:
+  - Daily/recurring schedules in Firebase Realtime Database.
+  - One-time tasks in Firestore with APScheduler.
+  - Inputs are Asia/Manila local strings; APScheduler runs in UTC (automatic conversion).
+  - Jobs are restored on restart; misfires within a grace window are executed.
+- **Notifications**: FCM alerts on out-of-range readings with de‑duplication flags.
+- **Tank‑Pi integration**: Dispatch scheduled feed commands (cycle and food) to Tank‑Pi.
 
 ---
 
 ## Technologies
 
 - Python, Flask
-- Firebase Realtime Database (telemetry, schedules), Firebase Cloud Messaging
-- Google Firestore (one-time tasks), APScheduler (job runner)
+- Firebase Realtime Database (telemetry, recurring schedules), Firebase Cloud Messaging (alerts)
+- Google Firestore (one-time tasks: `Schedules` collection stores Manila string times)
+- APScheduler (UTC scheduler with misfire grace; conversion from Asia/Manila on input)
 - Google Gemini API (AI)
 
 ---
@@ -159,11 +165,13 @@ POST `/task/<aquarium_id>`
 
 - **Body**:
 ```json
-{ "cycle": 2, "schedule_time": "2025-10-09 08:30:00" }
+{ "cycle": 2, "schedule_time": "2025-10-09 08:30:00", "food": "pellet" }
 ```
-- Time format for `schedule_time`: 24-hour `YYYY-MM-DD HH:MM:SS` (e.g., `2025-10-09 00:05:00`, `2025-10-09 18:05:00`).
-- Interpreted in the server's local timezone.
-- Schedules a one-time job with id `schedule_at_YYYYMMDD_HHMMSS`. Persisted in `Firestore: Schedules/{jobId}` as pending and registered in APScheduler. On run, it triggers Tank-Pi (see below) and marks the document `status=done`.
+- **Time format**: 24‑hour `YYYY-MM-DD HH:MM:SS` in Asia/Manila (local) time.
+- Stored in Firestore as a plain string (`schedule_time`), along with `cycle`, `food`, and `status`.
+- APScheduler runs in UTC; the Manila string is converted to UTC for `run_date`.
+- Creates a job id `schedule_at_YYYYMMDD_HHMMSS` and persists to `Firestore: Schedules/{jobId}` with `status=pending`.
+- On execution, the server contacts Tank‑Pi (see below), updates Firestore `status=done`, and removes the APS job.
 - **Returns**:
 ```json
 { "message": "Sucessfully added the schedule" }
@@ -175,7 +183,7 @@ POST `/task/delete/<aquarium_id>`
 ```json
 { "schedule_time": "2025-10-09 08:30:00" }
 ```
-- Locates the job by time and aquarium, removes APS job if present, deletes the Firestore doc.
+- Locates the job by exact `schedule_time` string (Asia/Manila) and `aquarium_id`, removes the APS job if present, and deletes the Firestore doc.
 - **Returns**:
 ```json
 { "message": "Sucessfully remove the schedule" }
@@ -210,9 +218,9 @@ POST `/ml`
   - URL: `https://pi-cam.alfreds.dev/{aquarium_id}/add_task`
   - Body:
 ```json
-  { "aquarium_id": <int>, "cycle": <int>, "job_id": "schedule_at_YYYYMMDD_HHMMSS" }
+  { "aquarium_id": <int>, "cycle": <int>, "food": "pellet|flakes", "job_id": "schedule_at_YYYYMMDD_HHMMSS" }
   ```
-  - Timeouts and errors are logged server-side; after the request the Firestore doc is updated to `status=done`.
+  - Timeouts and errors are logged server-side; Firestore is updated to `status=done` regardless, to ensure idempotent progress.
 
 ---
 
@@ -225,10 +233,17 @@ python run.py
 ```
 3. Server listens on `http://0.0.0.0:5001`.
 
+Optional env vars:
+- `TZ=Asia/Manila` (default) — input timezone for `schedule_time` strings.
+- `SKIP_PI_HTTP=true` — skip Tank‑Pi HTTP calls but still mark Firestore done (useful for testing the scheduler end‑to‑end).
+- The scheduler runs in UTC internally; `/status` shows `next_run_time` in UTC.
+
 ---
 
 ## Notes
 
-- Realtime schedules are managed in Firebase under `auto_feeder/schedule` and are separate from one-time Firestore tasks.
-- APScheduler jobs are restored at startup from Firestore pending records.
+- Realtime schedules are managed in Firebase under `auto_feeder/schedule` and are separate from one‑time Firestore tasks.
+- Firestore one‑time tasks store `schedule_time` as a Manila string; APS converts it to UTC for execution.
+- APScheduler jobs are restored at startup from Firestore pending records (misfires within grace are executed immediately).
+- Use `GET /status` to see current scheduler jobs and their UTC `next_run_time`.
 
