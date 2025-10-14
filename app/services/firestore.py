@@ -59,7 +59,10 @@ if not firebase_admin._apps:
 db = firestore.client()
 scheduler = None
 
-def add_schedule_firestore(aquarium_id: int, cycle: int, schedule_time: datetime | str, job_id: str, food: str) -> str:
+# ─────────────────────────────
+# 🔹 Add schedule to Firestore (store string time)
+# ─────────────────────────────
+def add_schedule_firestore(aquarium_id: int, cycle: int, schedule_time: datetime | str, job_id: str) -> str:
     """Add a schedule document to Firestore.
 
     Store schedule_time as a string 'YYYY-%m-%d %H:%M:%S' in Asia/Manila.
@@ -77,13 +80,15 @@ def add_schedule_firestore(aquarium_id: int, cycle: int, schedule_time: datetime
     db.collection("Schedules").document(job_id).set({
         "aquarium_id": aquarium_id,
         "cycle": cycle,
-        "schedule_time": schedule_time_str,
-        "food": food,  # Stored as local Manila string
+        "schedule_time": schedule_time_str,  # Stored as local Manila string
         "status": "pending"
     })
     return f"Schedule added: {job_id} at {schedule_time_str}"
 
-def create_schedule(aquarium_id: int, cycle: int, schedule_time: str, food: str):
+# ─────────────────────────────
+# 🔹 Create schedule and register in APScheduler
+# ─────────────────────────────
+def create_schedule(aquarium_id: int, cycle: int, schedule_time: str):
     """Create a Firestore schedule and register an APScheduler job.
 
     schedule_time is expected as 'YYYY-%m-%d %H:%M:%S' in Asia/Manila local time.
@@ -100,32 +105,34 @@ def create_schedule(aquarium_id: int, cycle: int, schedule_time: str, food: str)
     print(f"UTC run_time for APS:        {run_time_utc}")
 
     job_id = f"schedule_at_{run_time_local.strftime('%Y%m%d_%H%M%S')}"
-    output = add_schedule_firestore(aquarium_id, cycle, schedule_time, job_id, food)
+    output = add_schedule_firestore(aquarium_id, cycle, schedule_time, job_id)
     print(output)
 
     scheduler.add_job(
         func=send_scheduled_raspi,
         trigger="date",
         run_date=run_time_utc,
-        args=[aquarium_id, cycle, job_id, food],
+        args=[aquarium_id, cycle, job_id],
         id=job_id,
         replace_existing=True,
     )
 
     added_job = scheduler.get_job(job_id)
     if added_job:
-        print(f"[DEBUG] APS Job added: {added_job.id}, Run time: {added_job.next_run_time}")
+        print(f"[DEBUG] ✅ APS Job added: {added_job.id}, Run time: {added_job.next_run_time}")
     else:
-        print(f"[DEBUG] Failed to add job {job_id} to APScheduler.")
+        print(f"[DEBUG] ❌ Failed to add job {job_id} to APScheduler.")
 
-
-def send_scheduled_raspi(aquarium_id, cycle, job_id, food):
+# ─────────────────────────────
+# 🔹 Execute scheduled job
+# ─────────────────────────────
+def send_scheduled_raspi(aquarium_id, cycle, job_id):
     """Send scheduled task to Raspberry Pi and update Firestore after execution."""
     current_time = datetime.now(LOCAL_TZ).strftime("%Y-%m-%d %H:%M:%S")
     print(f"[EXEC] send_scheduled_raspi START — local={current_time} job_id={job_id} aquarium_id={aquarium_id} cycle={cycle}", flush=True)
 
     target_url = f"https://pi-cam.alfreds.dev/{aquarium_id}/add_task"
-    payload = {"aquarium_id": aquarium_id, "cycle": cycle, "job_id": job_id, "food" : food}
+    payload = {"aquarium_id": aquarium_id, "cycle": cycle, "job_id": job_id}
 
     skip_http = os.getenv("SKIP_PI_HTTP", "false").lower() == "true"
     if skip_http:
@@ -135,7 +142,7 @@ def send_scheduled_raspi(aquarium_id, cycle, job_id, food):
             print(f"[EXEC] HTTP POST -> {target_url} payload={payload}", flush=True)
             response = requests.post(target_url, json=payload, timeout=5)
             response.raise_for_status()
-            print(f"[EXEC] HTTP OK status={response.status_code} body={response.text[:200]}", flush=True)
+            print(f"[EXEC] ✅ HTTP OK status={response.status_code} body={response.text[:200]}", flush=True)
         except requests.RequestException as e:
             print(f"[EXEC][ERROR] HTTP failed: {e}", flush=True)
 
@@ -159,13 +166,17 @@ def send_scheduled_raspi(aquarium_id, cycle, job_id, food):
 
     print(f"[EXEC] send_scheduled_raspi END — job_id={job_id}", flush=True)
 
-
+# ─────────────────────────────
+# 🔹 Mark Firestore schedule done
+# ─────────────────────────────
 def set_status_done_firebase(job_id: str):
     doc_ref = db.collection("Schedules").document(job_id)
     doc_ref.update({"status": "done"})
     return f"{job_id} marked as done"
 
-
+# ─────────────────────────────
+# 🔹 Reschedule all pending jobs on startup
+# ─────────────────────────────
 def reschedule_all_jobs_from_firestore():
     """Recreate all pending Firestore schedules after restart and execute missed ones."""
     schedules_ref = db.collection("Schedules")
@@ -182,7 +193,6 @@ def reschedule_all_jobs_from_firestore():
         cycle = data.get("cycle", 1)
         status = data.get("status", "pending")
         schedule_field = data.get("schedule_time")
-        food = data.get("food")
 
         if status != "pending":
             continue
@@ -209,6 +219,15 @@ def reschedule_all_jobs_from_firestore():
             print(f"[SKIP] {job_id}: unsupported schedule_time type {type(schedule_field)}")
             continue
 
+        if schedule_time_local <= now:
+            # Execute missed pending job immediately
+            try:
+                print(f"[EXECUTE] Missed job {job_id} (scheduled {schedule_time_local}, now {now})")
+                send_scheduled_raspi(aquarium_id, cycle, job_id)
+                executed_past += 1
+            except Exception as e:
+                print(f"[ERROR] Failed executing missed job {job_id}: {e}")
+            continue
 
         if scheduler.get_job(job_id):
             skipped_duplicate += 1
@@ -220,12 +239,12 @@ def reschedule_all_jobs_from_firestore():
             func=send_scheduled_raspi,
             trigger="date",
             run_date=run_date_utc,
-            args=[aquarium_id, cycle, job_id, food],
+            args=[aquarium_id, cycle, job_id],
             id=job_id,
             replace_existing=True,
         )
         restored_count += 1
-        print(f"[RESTORE]  Job {job_id} scheduled for {schedule_time_local} (UTC {run_date_utc})")
+        print(f"[RESTORE] ✅ Job {job_id} scheduled for {schedule_time_local} (UTC {run_date_utc})")
 
     print(
         f"\n[RESULT] Rescheduling complete — "
@@ -234,6 +253,9 @@ def reschedule_all_jobs_from_firestore():
         f"{skipped_duplicate} skipped (duplicate)."
     )
 
+# ─────────────────────────────
+# 🔹 Find & delete schedule by time (for API route compatibility)
+# ─────────────────────────────
 def find_schedule_by_time_and_aquarium(aquarium_id: int, schedule_time: str):
     """Find a schedule document id by aquarium_id and schedule_time string (exact match)."""
     docs = db.collection("Schedules").where("aquarium_id", "==", aquarium_id).where("schedule_time", "==", schedule_time).stream()
@@ -269,3 +291,40 @@ def delete_schedule_by_time(aquarium_id: int, schedule_time: str):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+# ─────────────────────────────
+# 🔹 Safety poller: execute any pending jobs that are due (fallback)
+# ─────────────────────────────
+def process_due_pending_jobs():
+    """Fallback guard: find pending schedules whose Manila time is <= now and execute them.
+
+    This ensures correctness if an APS 'date' job is missed due to infra nuances.
+    """
+    now_local = datetime.now(LOCAL_TZ)
+    now_str = now_local.strftime("%Y-%m-%d %H:%M:%S")
+
+    try:
+        docs = db.collection("Schedules").where("status", "==", "pending").stream()
+        checked = 0
+        executed = 0
+        for doc in docs:
+            data = doc.to_dict()
+            job_id = doc.id
+            st = data.get("schedule_time")
+            aquarium_id = data.get("aquarium_id")
+            cycle = data.get("cycle", 1)
+            if not st or not aquarium_id:
+                continue
+
+            checked += 1
+            # Lexicographic comparison works with 'YYYY-MM-DD HH:MM:SS'
+            if isinstance(st, str) and st <= now_str:
+                print(f"[POLL] Executing due job {job_id} (scheduled {st}, now {now_str})")
+                try:
+                    send_scheduled_raspi(aquarium_id, cycle, job_id)
+                    executed += 1
+                except Exception as e:
+                    print(f"[POLL][ERROR] Failed executing job {job_id}: {e}")
+        if checked:
+            print(f"[POLL] Checked {checked} pending; executed {executed} due jobs.")
+    except Exception as e:
+        print(f"[POLL][ERROR] {e}")
