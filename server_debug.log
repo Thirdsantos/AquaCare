@@ -231,3 +231,211 @@
 [2025-10-12 14:04:12,255] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-12 06:04:17 UTC)" executed successfully
 [2025-10-12 14:04:12,256] [INFO] ✅ Job due_poller executed successfully at 2025-10-12 14:04:12.256738+08:00
 [2025-10-12 14:04:14,393] [WARNING] ⚠️ APScheduler or process stopping at 2025-10-12 14:04:14.393736+08:00
+[2025-10-14 19:51:52,592] [INFO] Server timezone: Asia/Manila, Local time: 2025-10-14 19:51:52.592697+08:00
+[2025-10-14 19:53:00,762] [INFO] Server timezone: Asia/Manila, Local time: 2025-10-14 19:53:00.762645+08:00
+[2025-10-14 19:53:00,857] [INFO] Adding job tentatively -- it will be properly scheduled when the scheduler starts
+[2025-10-14 19:53:00,857] [INFO] 🚀 Starting APScheduler...
+[2025-10-14 19:53:00,862] [INFO] Added job "due_poller" to job store "default"
+[2025-10-14 19:53:00,862] [INFO] Scheduler started
+[2025-10-14 19:53:00,867] [INFO] ✅ APScheduler started successfully.
+[2025-10-14 19:53:00,868] [ERROR] 🔥 Failed to restore Firestore jobs:
+[2025-10-14 19:53:00,879] [INFO] 🌐 Flask app starting...
+[2025-10-14 19:53:01,203] [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://192.168.1.65:5001
+[2025-10-14 19:53:01,206] [INFO] [33mPress CTRL+C to quit[0m
+[2025-10-14 19:53:10,861] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:53:20 UTC)" (scheduled at 2025-10-14 11:53:10.856846+00:00)
+[2025-10-14 19:53:10,863] [WARNING] poller error: module 'app.services.firestore' has no attribute 'process_due_pending_jobs'
+[2025-10-14 19:53:10,864] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:53:20 UTC)" executed successfully
+[2025-10-14 19:53:10,866] [INFO] ✅ Job due_poller executed successfully at 2025-10-14 19:53:10.865965+08:00
+[2025-10-14 19:53:20,869] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:53:30 UTC)" (scheduled at 2025-10-14 11:53:20.856846+00:00)
+[2025-10-14 19:53:20,872] [WARNING] poller error: module 'app.services.firestore' has no attribute 'process_due_pending_jobs'
+[2025-10-14 19:53:20,873] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:53:30 UTC)" executed successfully
+[2025-10-14 19:53:20,873] [INFO] ✅ Job due_poller executed successfully at 2025-10-14 19:53:20.873702+08:00
+[2025-10-14 19:53:27,007] [INFO] 127.0.0.1 - - [14/Oct/2025 19:53:27] "POST /task/1 HTTP/1.1" 200 -
+[2025-10-14 19:53:30,872] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:53:40 UTC)" (scheduled at 2025-10-14 11:53:30.856846+00:00)
+[2025-10-14 19:53:30,873] [WARNING] poller error: module 'app.services.firestore' has no attribute 'process_due_pending_jobs'
+[2025-10-14 19:53:30,875] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:53:40 UTC)" executed successfully
+[2025-10-14 19:53:30,876] [INFO] ✅ Job due_poller executed successfully at 2025-10-14 19:53:30.876238+08:00
+[2025-10-14 19:53:40,892] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:53:50 UTC)" (scheduled at 2025-10-14 11:53:40.856846+00:00)
+[2025-10-14 19:53:40,897] [WARNING] poller error: module 'app.services.firestore' has no attribute 'process_due_pending_jobs'
+[2025-10-14 19:53:40,898] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:53:50 UTC)" executed successfully
+[2025-10-14 19:53:40,899] [INFO] ✅ Job due_poller executed successfully at 2025-10-14 19:53:40.899737+08:00
+[2025-10-14 19:53:50,873] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:54:00 UTC)" (scheduled at 2025-10-14 11:53:50.856846+00:00)
+[2025-10-14 19:53:50,879] [WARNING] poller error: module 'app.services.firestore' has no attribute 'process_due_pending_jobs'
+[2025-10-14 19:53:50,898] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:54:00 UTC)" executed successfully
+[2025-10-14 19:53:50,899] [INFO] ✅ Job due_poller executed successfully at 2025-10-14 19:53:50.899376+08:00
+[2025-10-14 19:54:00,867] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:54:10 UTC)" (scheduled at 2025-10-14 11:54:00.856846+00:00)
+[2025-10-14 19:54:00,869] [WARNING] poller error: module 'app.services.firestore' has no attribute 'process_due_pending_jobs'
+[2025-10-14 19:54:00,870] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:54:10 UTC)" executed successfully
+[2025-10-14 19:54:00,871] [INFO] ✅ Job due_poller executed successfully at 2025-10-14 19:54:00.871301+08:00
+[2025-10-14 19:54:10,872] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:54:20 UTC)" (scheduled at 2025-10-14 11:54:10.856846+00:00)
+[2025-10-14 19:54:10,873] [WARNING] poller error: module 'app.services.firestore' has no attribute 'process_due_pending_jobs'
+[2025-10-14 19:54:10,874] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:54:20 UTC)" executed successfully
+[2025-10-14 19:54:10,876] [INFO] ✅ Job due_poller executed successfully at 2025-10-14 19:54:10.876288+08:00
+[2025-10-14 19:54:20,873] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:54:30 UTC)" (scheduled at 2025-10-14 11:54:20.856846+00:00)
+[2025-10-14 19:54:20,875] [WARNING] poller error: module 'app.services.firestore' has no attribute 'process_due_pending_jobs'
+[2025-10-14 19:54:20,876] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:54:30 UTC)" executed successfully
+[2025-10-14 19:54:20,878] [INFO] ✅ Job due_poller executed successfully at 2025-10-14 19:54:20.878197+08:00
+[2025-10-14 19:54:30,871] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:54:40 UTC)" (scheduled at 2025-10-14 11:54:30.856846+00:00)
+[2025-10-14 19:54:30,872] [WARNING] poller error: module 'app.services.firestore' has no attribute 'process_due_pending_jobs'
+[2025-10-14 19:54:30,873] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:54:40 UTC)" executed successfully
+[2025-10-14 19:54:30,874] [INFO] ✅ Job due_poller executed successfully at 2025-10-14 19:54:30.873985+08:00
+[2025-10-14 19:54:36,673] [INFO] 127.0.0.1 - - [14/Oct/2025 19:54:36] "POST /task/1 HTTP/1.1" 200 -
+[2025-10-14 19:54:40,870] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:54:50 UTC)" (scheduled at 2025-10-14 11:54:40.856846+00:00)
+[2025-10-14 19:54:40,871] [WARNING] poller error: module 'app.services.firestore' has no attribute 'process_due_pending_jobs'
+[2025-10-14 19:54:40,872] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:54:50 UTC)" executed successfully
+[2025-10-14 19:54:40,873] [INFO] ✅ Job due_poller executed successfully at 2025-10-14 19:54:40.873447+08:00
+[2025-10-14 19:54:50,866] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:55:00 UTC)" (scheduled at 2025-10-14 11:54:50.856846+00:00)
+[2025-10-14 19:54:50,873] [WARNING] poller error: module 'app.services.firestore' has no attribute 'process_due_pending_jobs'
+[2025-10-14 19:54:50,877] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:55:00 UTC)" executed successfully
+[2025-10-14 19:54:50,879] [INFO] ✅ Job due_poller executed successfully at 2025-10-14 19:54:50.879675+08:00
+[2025-10-14 19:55:00,860] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:55:10 UTC)" (scheduled at 2025-10-14 11:55:00.856846+00:00)
+[2025-10-14 19:55:00,861] [WARNING] poller error: module 'app.services.firestore' has no attribute 'process_due_pending_jobs'
+[2025-10-14 19:55:00,862] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:55:10 UTC)" executed successfully
+[2025-10-14 19:55:00,863] [INFO] ✅ Job due_poller executed successfully at 2025-10-14 19:55:00.863848+08:00
+[2025-10-14 19:55:10,862] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:55:20 UTC)" (scheduled at 2025-10-14 11:55:10.856846+00:00)
+[2025-10-14 19:55:10,865] [WARNING] poller error: module 'app.services.firestore' has no attribute 'process_due_pending_jobs'
+[2025-10-14 19:55:10,866] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:55:20 UTC)" executed successfully
+[2025-10-14 19:55:10,867] [INFO] ✅ Job due_poller executed successfully at 2025-10-14 19:55:10.867236+08:00
+[2025-10-14 19:55:20,872] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:55:30 UTC)" (scheduled at 2025-10-14 11:55:20.856846+00:00)
+[2025-10-14 19:55:20,877] [WARNING] poller error: module 'app.services.firestore' has no attribute 'process_due_pending_jobs'
+[2025-10-14 19:55:20,881] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:55:30 UTC)" executed successfully
+[2025-10-14 19:55:20,885] [INFO] ✅ Job due_poller executed successfully at 2025-10-14 19:55:20.885441+08:00
+[2025-10-14 19:55:30,873] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:55:40 UTC)" (scheduled at 2025-10-14 11:55:30.856846+00:00)
+[2025-10-14 19:55:30,908] [WARNING] poller error: module 'app.services.firestore' has no attribute 'process_due_pending_jobs'
+[2025-10-14 19:55:30,942] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:55:40 UTC)" executed successfully
+[2025-10-14 19:55:30,970] [INFO] ✅ Job due_poller executed successfully at 2025-10-14 19:55:30.970852+08:00
+[2025-10-14 19:55:40,866] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:55:50 UTC)" (scheduled at 2025-10-14 11:55:40.856846+00:00)
+[2025-10-14 19:55:40,869] [WARNING] poller error: module 'app.services.firestore' has no attribute 'process_due_pending_jobs'
+[2025-10-14 19:55:40,871] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:55:50 UTC)" executed successfully
+[2025-10-14 19:55:40,873] [INFO] ✅ Job due_poller executed successfully at 2025-10-14 19:55:40.873220+08:00
+[2025-10-14 19:55:50,892] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:56:00 UTC)" (scheduled at 2025-10-14 11:55:50.856846+00:00)
+[2025-10-14 19:55:50,895] [WARNING] poller error: module 'app.services.firestore' has no attribute 'process_due_pending_jobs'
+[2025-10-14 19:55:50,920] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:56:00 UTC)" executed successfully
+[2025-10-14 19:55:50,955] [INFO] ✅ Job due_poller executed successfully at 2025-10-14 19:55:50.955387+08:00
+[2025-10-14 19:56:00,874] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:56:10 UTC)" (scheduled at 2025-10-14 11:56:00.856846+00:00)
+[2025-10-14 19:56:00,877] [WARNING] poller error: module 'app.services.firestore' has no attribute 'process_due_pending_jobs'
+[2025-10-14 19:56:00,878] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:56:10 UTC)" executed successfully
+[2025-10-14 19:56:00,879] [INFO] ✅ Job due_poller executed successfully at 2025-10-14 19:56:00.879435+08:00
+[2025-10-14 19:56:10,871] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:56:20 UTC)" (scheduled at 2025-10-14 11:56:10.856846+00:00)
+[2025-10-14 19:56:10,875] [WARNING] poller error: module 'app.services.firestore' has no attribute 'process_due_pending_jobs'
+[2025-10-14 19:56:10,876] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:56:20 UTC)" executed successfully
+[2025-10-14 19:56:10,878] [INFO] ✅ Job due_poller executed successfully at 2025-10-14 19:56:10.878605+08:00
+[2025-10-14 19:56:20,864] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:56:30 UTC)" (scheduled at 2025-10-14 11:56:20.856846+00:00)
+[2025-10-14 19:56:20,877] [WARNING] poller error: module 'app.services.firestore' has no attribute 'process_due_pending_jobs'
+[2025-10-14 19:56:20,881] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:56:30 UTC)" executed successfully
+[2025-10-14 19:56:20,883] [INFO] ✅ Job due_poller executed successfully at 2025-10-14 19:56:20.883536+08:00
+[2025-10-14 19:56:30,865] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:56:40 UTC)" (scheduled at 2025-10-14 11:56:30.856846+00:00)
+[2025-10-14 19:56:30,867] [WARNING] poller error: module 'app.services.firestore' has no attribute 'process_due_pending_jobs'
+[2025-10-14 19:56:30,874] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:56:40 UTC)" executed successfully
+[2025-10-14 19:56:30,877] [INFO] ✅ Job due_poller executed successfully at 2025-10-14 19:56:30.877128+08:00
+[2025-10-14 19:56:40,877] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:56:50 UTC)" (scheduled at 2025-10-14 11:56:40.856846+00:00)
+[2025-10-14 19:56:40,878] [WARNING] poller error: module 'app.services.firestore' has no attribute 'process_due_pending_jobs'
+[2025-10-14 19:56:40,884] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:56:50 UTC)" executed successfully
+[2025-10-14 19:56:40,886] [INFO] ✅ Job due_poller executed successfully at 2025-10-14 19:56:40.886195+08:00
+[2025-10-14 19:56:50,865] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:57:00 UTC)" (scheduled at 2025-10-14 11:56:50.856846+00:00)
+[2025-10-14 19:56:50,867] [WARNING] poller error: module 'app.services.firestore' has no attribute 'process_due_pending_jobs'
+[2025-10-14 19:56:50,867] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:57:00 UTC)" executed successfully
+[2025-10-14 19:56:50,868] [INFO] ✅ Job due_poller executed successfully at 2025-10-14 19:56:50.868113+08:00
+[2025-10-14 19:57:00,872] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:57:10 UTC)" (scheduled at 2025-10-14 11:57:00.856846+00:00)
+[2025-10-14 19:57:00,878] [WARNING] poller error: module 'app.services.firestore' has no attribute 'process_due_pending_jobs'
+[2025-10-14 19:57:00,879] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:57:10 UTC)" executed successfully
+[2025-10-14 19:57:00,883] [INFO] ✅ Job due_poller executed successfully at 2025-10-14 19:57:00.882974+08:00
+[2025-10-14 19:57:10,866] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:57:20 UTC)" (scheduled at 2025-10-14 11:57:10.856846+00:00)
+[2025-10-14 19:57:10,868] [WARNING] poller error: module 'app.services.firestore' has no attribute 'process_due_pending_jobs'
+[2025-10-14 19:57:10,869] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:57:20 UTC)" executed successfully
+[2025-10-14 19:57:10,871] [INFO] ✅ Job due_poller executed successfully at 2025-10-14 19:57:10.871827+08:00
+[2025-10-14 19:57:20,865] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:57:30 UTC)" (scheduled at 2025-10-14 11:57:20.856846+00:00)
+[2025-10-14 19:57:20,866] [WARNING] poller error: module 'app.services.firestore' has no attribute 'process_due_pending_jobs'
+[2025-10-14 19:57:20,867] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:57:30 UTC)" executed successfully
+[2025-10-14 19:57:20,868] [INFO] ✅ Job due_poller executed successfully at 2025-10-14 19:57:20.868168+08:00
+[2025-10-14 19:57:30,868] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:57:40 UTC)" (scheduled at 2025-10-14 11:57:30.856846+00:00)
+[2025-10-14 19:57:30,870] [WARNING] poller error: module 'app.services.firestore' has no attribute 'process_due_pending_jobs'
+[2025-10-14 19:57:30,870] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:57:40 UTC)" executed successfully
+[2025-10-14 19:57:30,873] [INFO] ✅ Job due_poller executed successfully at 2025-10-14 19:57:30.873601+08:00
+[2025-10-14 19:57:40,872] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:57:50 UTC)" (scheduled at 2025-10-14 11:57:40.856846+00:00)
+[2025-10-14 19:57:40,874] [WARNING] poller error: module 'app.services.firestore' has no attribute 'process_due_pending_jobs'
+[2025-10-14 19:57:40,874] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:57:50 UTC)" executed successfully
+[2025-10-14 19:57:40,878] [INFO] ✅ Job due_poller executed successfully at 2025-10-14 19:57:40.878047+08:00
+[2025-10-14 19:57:50,872] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:58:00 UTC)" (scheduled at 2025-10-14 11:57:50.856846+00:00)
+[2025-10-14 19:57:50,873] [WARNING] poller error: module 'app.services.firestore' has no attribute 'process_due_pending_jobs'
+[2025-10-14 19:57:50,875] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:58:00 UTC)" executed successfully
+[2025-10-14 19:57:50,881] [INFO] ✅ Job due_poller executed successfully at 2025-10-14 19:57:50.880001+08:00
+[2025-10-14 19:58:00,872] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:58:10 UTC)" (scheduled at 2025-10-14 11:58:00.856846+00:00)
+[2025-10-14 19:58:00,878] [WARNING] poller error: module 'app.services.firestore' has no attribute 'process_due_pending_jobs'
+[2025-10-14 19:58:00,882] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:58:10 UTC)" executed successfully
+[2025-10-14 19:58:00,885] [INFO] ✅ Job due_poller executed successfully at 2025-10-14 19:58:00.884925+08:00
+[2025-10-14 19:58:10,868] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:58:20 UTC)" (scheduled at 2025-10-14 11:58:10.856846+00:00)
+[2025-10-14 19:58:10,887] [WARNING] poller error: module 'app.services.firestore' has no attribute 'process_due_pending_jobs'
+[2025-10-14 19:58:10,891] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:58:20 UTC)" executed successfully
+[2025-10-14 19:58:10,894] [INFO] ✅ Job due_poller executed successfully at 2025-10-14 19:58:10.894342+08:00
+[2025-10-14 19:58:20,898] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:58:30 UTC)" (scheduled at 2025-10-14 11:58:20.856846+00:00)
+[2025-10-14 19:58:20,939] [WARNING] poller error: module 'app.services.firestore' has no attribute 'process_due_pending_jobs'
+[2025-10-14 19:58:20,965] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:58:30 UTC)" executed successfully
+[2025-10-14 19:58:20,972] [INFO] ✅ Job due_poller executed successfully at 2025-10-14 19:58:20.972286+08:00
+[2025-10-14 19:58:30,862] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:58:40 UTC)" (scheduled at 2025-10-14 11:58:30.856846+00:00)
+[2025-10-14 19:58:30,863] [WARNING] poller error: module 'app.services.firestore' has no attribute 'process_due_pending_jobs'
+[2025-10-14 19:58:30,864] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:58:40 UTC)" executed successfully
+[2025-10-14 19:58:30,864] [INFO] ✅ Job due_poller executed successfully at 2025-10-14 19:58:30.864488+08:00
+[2025-10-14 19:58:40,866] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:58:50 UTC)" (scheduled at 2025-10-14 11:58:40.856846+00:00)
+[2025-10-14 19:58:40,874] [WARNING] poller error: module 'app.services.firestore' has no attribute 'process_due_pending_jobs'
+[2025-10-14 19:58:40,877] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:58:50 UTC)" executed successfully
+[2025-10-14 19:58:40,901] [INFO] ✅ Job due_poller executed successfully at 2025-10-14 19:58:40.901772+08:00
+[2025-10-14 19:58:50,873] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:59:00 UTC)" (scheduled at 2025-10-14 11:58:50.856846+00:00)
+[2025-10-14 19:58:50,917] [WARNING] poller error: module 'app.services.firestore' has no attribute 'process_due_pending_jobs'
+[2025-10-14 19:58:50,919] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:59:00 UTC)" executed successfully
+[2025-10-14 19:58:50,921] [INFO] ✅ Job due_poller executed successfully at 2025-10-14 19:58:50.921856+08:00
+[2025-10-14 19:59:00,863] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:59:10 UTC)" (scheduled at 2025-10-14 11:59:00.856846+00:00)
+[2025-10-14 19:59:00,867] [WARNING] poller error: module 'app.services.firestore' has no attribute 'process_due_pending_jobs'
+[2025-10-14 19:59:00,867] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:59:10 UTC)" executed successfully
+[2025-10-14 19:59:00,868] [INFO] ✅ Job due_poller executed successfully at 2025-10-14 19:59:00.868285+08:00
+[2025-10-14 19:59:10,866] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:59:20 UTC)" (scheduled at 2025-10-14 11:59:10.856846+00:00)
+[2025-10-14 19:59:10,873] [WARNING] poller error: module 'app.services.firestore' has no attribute 'process_due_pending_jobs'
+[2025-10-14 19:59:10,874] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:59:20 UTC)" executed successfully
+[2025-10-14 19:59:10,875] [INFO] ✅ Job due_poller executed successfully at 2025-10-14 19:59:10.875725+08:00
+[2025-10-14 19:59:20,877] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:59:30 UTC)" (scheduled at 2025-10-14 11:59:20.856846+00:00)
+[2025-10-14 19:59:20,890] [WARNING] poller error: module 'app.services.firestore' has no attribute 'process_due_pending_jobs'
+[2025-10-14 19:59:20,891] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 11:59:30 UTC)" executed successfully
+[2025-10-14 19:59:20,893] [INFO] ✅ Job due_poller executed successfully at 2025-10-14 19:59:20.893298+08:00
+[2025-10-14 19:59:29,058] [WARNING] ⚠️ APScheduler or process stopping at 2025-10-14 19:59:29.058667+08:00
+[2025-10-14 20:00:14,085] [INFO] Server timezone: Asia/Manila, Local time: 2025-10-14 20:00:14.085602+08:00
+[2025-10-14 20:00:14,287] [INFO] Adding job tentatively -- it will be properly scheduled when the scheduler starts
+[2025-10-14 20:00:14,288] [INFO] 🚀 Starting APScheduler...
+[2025-10-14 20:00:14,303] [INFO] Added job "due_poller" to job store "default"
+[2025-10-14 20:00:14,305] [INFO] Scheduler started
+[2025-10-14 20:00:14,313] [INFO] ✅ APScheduler started successfully.
+[2025-10-14 20:00:14,316] [ERROR] 🔥 Failed to restore Firestore jobs:
+[2025-10-14 20:00:14,354] [INFO] 🌐 Flask app starting...
+[2025-10-14 20:00:14,668] [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://192.168.1.65:5001
+[2025-10-14 20:00:14,671] [INFO] [33mPress CTRL+C to quit[0m
+[2025-10-14 20:00:25,029] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 12:00:34 UTC)" (scheduled at 2025-10-14 12:00:24.286831+00:00)
+[2025-10-14 20:00:25,191] [WARNING] poller error: module 'app.services.firestore' has no attribute 'process_due_pending_jobs'
+[2025-10-14 20:00:25,295] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 12:00:34 UTC)" executed successfully
+[2025-10-14 20:00:25,385] [INFO] ✅ Job due_poller executed successfully at 2025-10-14 20:00:25.384906+08:00
+[2025-10-14 20:00:34,336] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 12:00:44 UTC)" (scheduled at 2025-10-14 12:00:34.286831+00:00)
+[2025-10-14 20:00:34,608] [WARNING] poller error: module 'app.services.firestore' has no attribute 'process_due_pending_jobs'
+[2025-10-14 20:00:34,782] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 12:00:44 UTC)" executed successfully
+[2025-10-14 20:00:34,798] [INFO] ✅ Job due_poller executed successfully at 2025-10-14 20:00:34.797924+08:00
+[2025-10-14 20:00:42,750] [INFO] 127.0.0.1 - - [14/Oct/2025 20:00:42] "POST /task/1 HTTP/1.1" 200 -
+[2025-10-14 20:00:44,300] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 12:00:54 UTC)" (scheduled at 2025-10-14 12:00:44.286831+00:00)
+[2025-10-14 20:00:44,306] [WARNING] poller error: module 'app.services.firestore' has no attribute 'process_due_pending_jobs'
+[2025-10-14 20:00:44,310] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 12:00:54 UTC)" executed successfully
+[2025-10-14 20:00:44,362] [INFO] ✅ Job due_poller executed successfully at 2025-10-14 20:00:44.362705+08:00
+[2025-10-14 20:00:54,309] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 12:01:04 UTC)" (scheduled at 2025-10-14 12:00:54.286831+00:00)
+[2025-10-14 20:00:54,351] [WARNING] poller error: module 'app.services.firestore' has no attribute 'process_due_pending_jobs'
+[2025-10-14 20:00:54,384] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 12:01:04 UTC)" executed successfully
+[2025-10-14 20:00:54,429] [INFO] ✅ Job due_poller executed successfully at 2025-10-14 20:00:54.429494+08:00
+[2025-10-14 20:01:04,300] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 12:01:14 UTC)" (scheduled at 2025-10-14 12:01:04.286831+00:00)
+[2025-10-14 20:01:04,305] [WARNING] poller error: module 'app.services.firestore' has no attribute 'process_due_pending_jobs'
+[2025-10-14 20:01:04,311] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 12:01:14 UTC)" executed successfully
+[2025-10-14 20:01:04,318] [INFO] ✅ Job due_poller executed successfully at 2025-10-14 20:01:04.317951+08:00
+[2025-10-14 20:01:14,300] [INFO] Running job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 12:01:24 UTC)" (scheduled at 2025-10-14 12:01:14.286831+00:00)
+[2025-10-14 20:01:14,303] [WARNING] poller error: module 'app.services.firestore' has no attribute 'process_due_pending_jobs'
+[2025-10-14 20:01:14,305] [INFO] Job "due_poller (trigger: interval[0:00:10], next run at: 2025-10-14 12:01:24 UTC)" executed successfully
+[2025-10-14 20:01:14,319] [INFO] ✅ Job due_poller executed successfully at 2025-10-14 20:01:14.319721+08:00
+[2025-10-14 20:01:21,599] [WARNING] ⚠️ APScheduler or process stopping at 2025-10-14 20:01:21.599099+08:00

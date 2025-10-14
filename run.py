@@ -19,12 +19,8 @@ LOG_FORMAT = "[%(asctime)s] [%(levelname)s] %(message)s"
 LOG_LEVEL = logging.INFO
 
 logging.basicConfig(
-    level=LOG_LEVEL,
+    level=logging.DEBUG,
     format=LOG_FORMAT,
-    handlers=[
-        logging.StreamHandler(),  # Console output
-        logging.FileHandler("server_debug.log", mode="a", encoding="utf-8")  # File log
-    ]
 )
 
 logger = logging.getLogger(__name__)

@@ -1,5 +1,4 @@
 from flask import jsonify, request, Blueprint
-from datetime import datetime
 from app.services.firebase import (
     add_schedule_firebase,
     delete_schedule_firebase,
@@ -8,7 +7,7 @@ from app.services.firebase import (
     get_schedule_firebase,
     set_daily_schedule_firebase
 )
-from app.services.firestore import create_schedule, delete_schedule_by_time
+from app.services.firestore import create_schedule, send_schedule_raspi
 
 schedule_route = Blueprint("schedule", __name__)
 
@@ -100,41 +99,26 @@ def get_schedules(aquarium_id):
     schedules = get_schedule_firebase(aquarium_id)
     return jsonify(schedules)  
 
-@schedule_route.route("/update_daily/<int:aquarium_id>/<string:time>/<switch>", methods=["PATCH"])
-def update_daily(aquarium_id, time, switch):
-    """
-    Update the 'daily' status (true/false) for a feeding schedule.
-
-    Args:
-        aquarium_id (int): The ID of the aquarium
-        time (str): Feeding time in HH:MM format
-        switch (str): Daily flag as string ('true', 'false', etc.)
-
-    Returns:
-        JSON: Result of the update (status, time, daily_enabled)
-    """
-    daily_value = switch.lower() in ['true', '1', 't', 'y', 'yes']
-    update = set_daily_schedule_firebase(aquarium_id, daily_value, time)
-    return jsonify(update)
-
-
-
 @schedule_route.route("/task/<int:aquarium_id>", methods=["POST"])
 def add_task(aquarium_id):
     json_req = request.get_json()
     schedule_time = json_req.get("schedule_time")
+    type_food = json_req.get("food")
+    job_id = f"{aquarium_id}_schedule_at_{schedule_time}"
     try:
-        # Validate format 'YYYY-MM-DD HH:MM:SS' in Asia/Manila local time
-        datetime.strptime(schedule_time, "%Y-%m-%d %H:%M:%S")
-    except Exception:
-        return jsonify({"error": "schedule_time must be 'YYYY-MM-DD HH:MM:SS'"}), 400
 
-    create_schedule(
-        aquarium_id=aquarium_id,
-        cycle=json_req["cycle"],
-        schedule_time=schedule_time
-    )
-    return jsonify({"message": "Sucessfully added the schedule"})
+      create_schedule(
+          aquarium_id=aquarium_id,
+          cycle=json_req["cycle"],
+          schedule_time=schedule_time,
+          job_id = job_id,
+          food=type_food
+      )
+      send_schedule_raspi(aquarium_id, json_req["cycle"],schedule_time, type_food, job_id)
+      return jsonify({"message": "Sucessfully added the schedule"})
+    except Exception as e:
+      return jsonify({"Error" : e})
+    
 
 @schedule_route.route("/task/delete/<int:aquarium_id>", methods=["POST"])
 def delete_task(aquarium_id):
