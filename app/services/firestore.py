@@ -10,6 +10,12 @@ from dotenv import load_dotenv
 import logging
 
 logger = logging.getLogger(__name__)
+if not logging.getLogger().hasHandlers():  # Only configure if root logger has no handlers
+    logging.basicConfig(
+        level=logging.DEBUG,  # Default level
+        format="[%(asctime)s] [%(levelname)s] %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S"
+    )
 
 
 load_dotenv()
@@ -92,12 +98,40 @@ def send_schedule_raspi(aquarium_id: int, cycle: int, schedule_time: str, food: 
         print(e)
 
 def delete_schedule_by_id(aquarium_id: int, document_id: str):
-    """Delete a schedule in Firestore using document_id"""
-    get_ref = db.collection("Schedules").document(document_id)
-    doc = get_ref.get()
+    """Delete a schedule in Firestore using document_id."""
+    try:
+        get_ref = db.collection("Schedules").document(document_id)
+        doc = get_ref.get()
 
-    if doc.exists:
-        db.get_ref.delete()
+        if doc.exists:
+            get_ref.delete()
+            logger.info(f" Schedule {document_id} deleted successfully for aquarium {aquarium_id}.")
+            return f"Schedule {document_id} deleted successfully."
+        else:
+            logger.warning(f" Schedule {document_id} not found for aquarium {aquarium_id}.")
+            return f"Schedule {document_id} not found."
+
+    except Exception as e:
+        logger.error(f" Failed to delete schedule {document_id} for aquarium {aquarium_id}: {e}")
+        return f"Error deleting schedule: {e}"
+
+def set_complete_task(document_id: str):
+    try:
+        doc_ref = db.collection("Schedules").document(document_id)
+
+        if not doc_ref:
+            logger.error(f"{document_id} doesn't exist")
+            return f"{document_id} doesn't exist"
+        
+        doc_ref.update({
+            "status" : "done"
+        })
+
+        logger.info("Sucessfuly set the status to 'done'")
+        return "Sucessfuly set the status to 'done'"
+    except Exception as e:
+        logger.error(e)
+        return e
 
 
     
