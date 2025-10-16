@@ -12,7 +12,7 @@ from app.services.firestore import (
     create_schedule,
     send_schedule_raspi,
     delete_schedule_by_id,
-    set_complete_task
+    set_complete_task, send_deletion_raspi
 )
 
 schedule_route = Blueprint("schedule", __name__)
@@ -197,6 +197,7 @@ def delete_task(aquarium_id):
             return jsonify({"error": "Missing required field 'document_id'"}), 400
 
         delete_schedule_by_id(aquarium_id=aquarium_id, document_id=document_id)
+        send_deletion_raspi(aquarium_id=aquarium_id, document_id=document_id)
 
         logger.info(f"Deleted schedule for Aquarium ID {aquarium_id}, Document ID: {document_id}")
         return jsonify({"message": "Successfully removed the schedule"}), 200
@@ -223,3 +224,6 @@ def task_complete(document_id):
     except Exception as e:
         logger.exception(f"Failed to mark task complete for Document ID: {document_id}")
         return jsonify({"error": str(e)}), 500
+
+
+

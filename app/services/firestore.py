@@ -89,7 +89,7 @@ def create_schedule(aquarium_id: int, cycle: int, schedule_time: str, food: str,
 def send_schedule_raspi(aquarium_id: int, cycle: int, schedule_time: str, food: str, job_id: str):
     """Send scheduled task to Raspberry Pi"""
     target_url = f"https://pi-cam.alfreds.dev/{aquarium_id}/add_task"
-    payload = {"aquarium_id": aquarium_id, "cycle": cycle, "job_id": job_id, "food" : food}
+    payload = {"aquarium_id": aquarium_id, "cycle": cycle, "job_id": job_id, "food" : food, "schedule_time" : schedule_time}
 
     try: 
         response = requests.post(target_url, json=payload)
@@ -132,6 +132,46 @@ def set_complete_task(document_id: str):
     except Exception as e:
         logger.error(e)
         return e
+
+def send_deletion_raspi(aquarium_id: int, document_id: str):
+    try:
+        url = f"https://pi-cam.alfreds.dev/{aquarium_id}/delete_task"
+        payload = {"aquarium_id": aquarium_id, "document_id": document_id}
+
+        try:
+            requests.post(url, json=payload)
+            logger.info("Sucessfuly Delete the Task in Raspi")
+            return "Sucessfuly Delete the Task in Raspi"
+        
+        except Exception as e:
+            logger.error(f"ERROR {e}")
+            return e
+    except Exception as e:
+        logger.error(f"ERROR {e}")
+        return e
+    
+def get_scheduler_aquarium(aquarium_id: int):
+   try:
+      docs = db.collection("Schedules").where("aquarium_id", "==", aquarium_id).where("status", "==", "pending").stream()
+      pending_schedule = [
+            {**doc.to_dict(), "document_id": doc.id} for doc in docs
+        ]
+
+      if not pending_schedule:
+        logger.info(f"No Pending Schedule is return for aquarium {aquarium_id}")
+        return f"No Pending Schedule is return for aquarium {aquarium_id}"
+       
+      logger.info("Pending schedules are extracted")
+      return pending_schedule
+   
+   except Exception as e:
+      logger.error(f"ERROR Something went wrong, {e}")
+      return e
+   
+   
+
+
+    
 
 
     
