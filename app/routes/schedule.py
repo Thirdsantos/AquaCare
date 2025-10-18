@@ -228,7 +228,17 @@ def task_complete(document_id):
 
 @schedule_route.route("/get_pending/<int:aquarium_id>")
 def get_pending_jobs(aquarium_id):
-  """Get the pending Schedules subject for re-scheduling using the aquarium_id"""
+  """List pending one-time schedules for an aquarium.
+
+  Retrieves pending Firestore-backed schedules that may need re-scheduling
+  or dispatch after a restart.
+
+  Args:
+    aquarium_id (int): The aquarium identifier.
+
+  Returns:
+    Response: JSON with a list of pending schedule documents.
+  """
 
   try:
     pending = get_scheduler_aquarium(aquarium_id)
@@ -238,7 +248,7 @@ def get_pending_jobs(aquarium_id):
 
   except Exception as e:
       logger.error(f"Error: {e}")
-      return jsonify({"Error": e})
+      return jsonify({"error": str(e)}), 500
   
 
     

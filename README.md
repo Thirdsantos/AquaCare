@@ -129,17 +129,7 @@ or
 { "status": "not_found", "time": "08:30" }
 ```
 
-PATCH `/update_daily/<aquarium_id>/<time>/<switch>`
-
-- **Path params**: `aquarium_id` (int), `time` (HH:MM), `switch` string parsed to bool
-- **Returns**:
-```json
-{ "status": "updated", "time": "08:30", "daily_enabled": true }
-```
-or
-```json
-{ "status": "not_found", "time": "08:30" }
-```
+<!-- Daily toggle route removed; handled via schedule body and switch fields. -->
 
 GET `/get_schedules/<aquarium_id>`
 
@@ -159,11 +149,11 @@ POST `/task/<aquarium_id>`
 
 - **Body**:
 ```json
-{ "cycle": 2, "schedule_time": "2025-10-09 08:30:00" }
+{ "cycle": 2, "schedule_time": "2025-10-09 08:30:00", "food": "pellets" }
 ```
 - Time format for `schedule_time`: 24-hour `YYYY-MM-DD HH:MM:SS` (e.g., `2025-10-09 00:05:00`, `2025-10-09 18:05:00`).
 - Interpreted in the server's local timezone.
-- Schedules a one-time job with id `schedule_at_YYYYMMDD_HHMMSS`. Persisted in `Firestore: Schedules/{jobId}` as pending and registered in APScheduler. On run, it triggers Tank-Pi (see below) and marks the document `status=done`.
+- Schedules a one-time job with id `<aquarium_id>_schedule_at_YYYY-MM-DD HH:MM:SS`. Persisted in `Firestore: Schedules/{document_id}` as pending and registered in APScheduler. On run, it triggers Tank-Pi (see below) and marks the document `status=done`.
 - **Returns**:
 ```json
 { "message": "Sucessfully added the schedule" }
@@ -173,12 +163,28 @@ POST `/task/delete/<aquarium_id>`
 
 - **Body**:
 ```json
-{ "schedule_time": "2025-10-09 08:30:00" }
+{ "document_id": "<Firestore document id>" }
 ```
-- Locates the job by time and aquarium, removes APS job if present, deletes the Firestore doc.
+- Deletes the Firestore document and notifies Tank-Pi of deletion.
 - **Returns**:
 ```json
-{ "message": "Sucessfully remove the schedule" }
+{ "message": "Successfully removed the schedule" }
+```
+
+POST `/task_complete/<document_id>`
+
+- Marks a Firestore schedule document as completed.
+- **Returns**:
+```json
+{ "message": "<service response>" }
+```
+
+GET `/get_pending/<aquarium_id>`
+
+- Lists pending schedule documents for the aquarium.
+- **Returns**:
+```json
+{ "pending_aquariums": [ { /* schedule doc */ } ] }
 ```
 
 ### Machine Learning

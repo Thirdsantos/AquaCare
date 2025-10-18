@@ -6,6 +6,16 @@ sensors_bp = Blueprint("sensor", __name__)
 
 @sensors_bp.route("/<int:aquarium_id>/sensors", methods = ["POST"])
 def sensors(aquarium_id):
+  """Ingest real-time sensor readings for an aquarium.
+
+  Body JSON should include current readings (e.g., pH, temperature, turbidity).
+
+  Args:
+    aquarium_id (int): The aquarium identifier.
+
+  Returns:
+    Response: 200 JSON with acknowledgement and echoed data.
+  """
   data = request.json
   initialize_data_firebase(aquarium_id)
   save_sensors(aquarium_id, data)
@@ -16,6 +26,18 @@ def sensors(aquarium_id):
 
 @sensors_bp.route("/<int:aquarium_id>/hourly_log", methods = ["POST"])
 def hourly_log(aquarium_id):
+  """Record an hourly log entry and evaluate thresholds.
+
+  Body JSON should include readings for this hour. This appends to the
+  hourly log structure and may trigger notifications if thresholds are
+  violated.
+
+  Args:
+    aquarium_id (int): The aquarium identifier.
+
+  Returns:
+    Response: 200 JSON when stored successfully.
+  """
   data = request.json
   initialize_data_firebase(aquarium_id)
   save_hourly(aquarium_id, data)

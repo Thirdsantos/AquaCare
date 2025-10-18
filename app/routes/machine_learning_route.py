@@ -5,6 +5,15 @@ ml_route = Blueprint("machineLearning_route", __name__)
 
 @ml_route.route("/ml", methods=["POST"])
 def ml_result():
+    """Compare ML predictions against thresholds stored in Firebase.
+
+    Body JSON should be a list of prediction objects. The route fetches
+    current thresholds, compares each prediction, and may trigger downstream
+    alerts or actions via services.
+
+    Returns:
+      Response: 200 JSON on success or error details with appropriate codes.
+    """
     try:
         data = request.get_json()
         if not data:
