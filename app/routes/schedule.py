@@ -12,7 +12,7 @@ from app.services.firestore import (
     create_schedule,
     send_schedule_raspi,
     delete_schedule_by_id,
-    set_complete_task, send_deletion_raspi
+    set_complete_task, send_deletion_raspi, get_scheduler_aquarium
 )
 
 schedule_route = Blueprint("schedule", __name__)
@@ -226,4 +226,20 @@ def task_complete(document_id):
         return jsonify({"error": str(e)}), 500
 
 
+@schedule_route.route("/get_pending/<int:aquarium_id>")
+def get_pending_jobs(aquarium_id):
+  """Get the pending Schedules subject for re-scheduling using the aquarium_id"""
 
+  try:
+    pending = get_scheduler_aquarium(aquarium_id)
+    logger.info("Sucessfully Get the pending aquariums schedules")
+    return jsonify({"pending_aquariums" : pending}), 200
+
+
+  except Exception as e:
+      logger.error(f"Error: {e}")
+      return jsonify({"Error": e})
+  
+
+    
+    
