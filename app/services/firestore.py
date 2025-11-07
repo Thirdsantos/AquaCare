@@ -89,7 +89,9 @@ def create_schedule(aquarium_id: int, cycle: int, schedule_time: str, food: str,
 def send_schedule_raspi(aquarium_id: int, cycle: int, schedule_time: str, food: str, job_id: str):
     """Send scheduled task to Raspberry Pi"""
     target_url = f"https://pi-cam.alfreds.dev/{aquarium_id}/add_task"
-    payload = {"aquarium_id": aquarium_id, "cycle": cycle, "job_id": job_id, "food" : food, "schedule_time" : schedule_time}
+    formated_job_id = f"schedule_at_{schedule_time.replace(' ', '_')}"
+
+    payload = {"aquarium_id": aquarium_id, "cycle": cycle, "job_id": formated_job_id, "food" : food, "schedule_time" : schedule_time}
 
     try: 
         response = requests.post(target_url, json=payload)
