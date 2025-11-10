@@ -1,25 +1,26 @@
 import os
 import json
 import base64
-import re
 from datetime import datetime, timedelta, timezone
-from zoneinfo import ZoneInfo
 import requests
 from flask import jsonify
 import firebase_admin
 from firebase_admin import credentials, firestore
 from dotenv import load_dotenv
+import logging
 
-# ─────────────────────────────
-# 🔹 Load environment + timezone
-# ─────────────────────────────
+logger = logging.getLogger(__name__)
+if not logging.getLogger().hasHandlers():  # Only configure if root logger has no handlers
+    logging.basicConfig(
+        level=logging.DEBUG,  # Default level
+        format="[%(asctime)s] [%(levelname)s] %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S"
+    )
+
+
 load_dotenv()
-tz_name = os.getenv("TZ", "Asia/Manila")
-LOCAL_TZ = ZoneInfo(tz_name)
 
-# ─────────────────────────────
-# 🔹 Firebase Initialization
-# ─────────────────────────────
+
 def load_firebase_credentials():
     """Load Firebase credentials from environment or file with auto-detection."""
     key_data = os.getenv("GOOGLE_FIREBASE_KEY")
@@ -57,274 +58,117 @@ if not firebase_admin._apps:
     firebase_admin.initialize_app(cred)
 
 db = firestore.client()
-scheduler = None
 
-# ─────────────────────────────
-# 🔹 Add schedule to Firestore (store string time)
-# ─────────────────────────────
-def add_schedule_firestore(aquarium_id: int, cycle: int, schedule_time: datetime | str, job_id: str) -> str:
-    """Add a schedule document to Firestore.
 
-    Store schedule_time as a string 'YYYY-%m-%d %H:%M:%S' in Asia/Manila.
-    """
-    if isinstance(schedule_time, datetime):
-        if schedule_time.tzinfo is None:
-            schedule_time = schedule_time.replace(tzinfo=LOCAL_TZ)
-        else:
-            schedule_time = schedule_time.astimezone(LOCAL_TZ)
-        schedule_time_str = schedule_time.strftime("%Y-%m-%d %H:%M:%S")
-    else:
-        # Assume valid string format already
-        schedule_time_str = schedule_time
 
+
+def create_schedule(aquarium_id: int, cycle: int, schedule_time: str, food: str, job_id: str):
+  """Create a Firestore schedule and register an APScheduler job.
+
+  schedule_time is expected as 'YYYY-%m-%d %H:%M:%S' in Asia/Manila local time.
+
+  """
+  try:
+    trim_time = schedule_time.replace(" ","_")
+    job_id = f"schedule_at_{trim_time}"
     db.collection("Schedules").document(job_id).set({
         "aquarium_id": aquarium_id,
         "cycle": cycle,
-        "schedule_time": schedule_time_str,  # Stored as local Manila string
-        "status": "pending"
-    })
-    return f"Schedule added: {job_id} at {schedule_time_str}"
+        "schedule_time": schedule_time,
+        "food" : food, 
+        "status": "pending"        
+      })
+    logger.info(f"Schedule {job_id} added in the firestore")
+    return "Sucesfully added in the firestore"
+    
+  except Exception as e:
+      logger.error(f"Failed to add schedule {job_id}: {e}")
+      return e
+      
 
-# ─────────────────────────────
-# 🔹 Create schedule and register in APScheduler
-# ─────────────────────────────
-def create_schedule(aquarium_id: int, cycle: int, schedule_time: str):
-    """Create a Firestore schedule and register an APScheduler job.
-
-    schedule_time is expected as 'YYYY-%m-%d %H:%M:%S' in Asia/Manila local time.
-    """
-    server_now = datetime.now(LOCAL_TZ)
-    naive_time = datetime.strptime(schedule_time, "%Y-%m-%d %H:%M:%S")
-    run_time_local = naive_time.replace(tzinfo=LOCAL_TZ)
-    run_time_utc = run_time_local.astimezone(timezone.utc)
-
-    print("\n[DEBUG] Creating Schedule:")
-    print(f"Server local time now:       {server_now}")
-    print(f"Requested schedule_time:     {schedule_time}")
-    print(f"Localized run_time for APS:  {run_time_local}")
-    print(f"UTC run_time for APS:        {run_time_utc}")
-
-    job_id = f"schedule_at_{run_time_local.strftime('%Y%m%d_%H%M%S')}"
-    output = add_schedule_firestore(aquarium_id, cycle, schedule_time, job_id)
-    print(output)
-
-    scheduler.add_job(
-        func=send_scheduled_raspi,
-        trigger="date",
-        run_date=run_time_utc,
-        args=[aquarium_id, cycle, job_id],
-        id=job_id,
-        replace_existing=True,
-    )
-
-    added_job = scheduler.get_job(job_id)
-    if added_job:
-        print(f"[DEBUG] ✅ APS Job added: {added_job.id}, Run time: {added_job.next_run_time}")
-    else:
-        print(f"[DEBUG] ❌ Failed to add job {job_id} to APScheduler.")
-
-# ─────────────────────────────
-# 🔹 Execute scheduled job
-# ─────────────────────────────
-def send_scheduled_raspi(aquarium_id, cycle, job_id):
-    """Send scheduled task to Raspberry Pi and update Firestore after execution."""
-    current_time = datetime.now(LOCAL_TZ).strftime("%Y-%m-%d %H:%M:%S")
-    print(f"[EXEC] send_scheduled_raspi START — local={current_time} job_id={job_id} aquarium_id={aquarium_id} cycle={cycle}", flush=True)
-
+def send_schedule_raspi(aquarium_id: int, cycle: int, schedule_time: str, food: str, job_id: str):
+    """Send scheduled task to Raspberry Pi"""
     target_url = f"https://pi-cam.alfreds.dev/{aquarium_id}/add_task"
-    payload = {"aquarium_id": aquarium_id, "cycle": cycle, "job_id": job_id}
+    payload = {"aquarium_id": aquarium_id, "cycle": cycle, "job_id": job_id, "food" : food, "schedule_time" : schedule_time}
 
-    skip_http = os.getenv("SKIP_PI_HTTP", "false").lower() == "true"
-    if skip_http:
-        print(f"[EXEC] SKIP_PI_HTTP=true — skipping HTTP call to Tank-Pi", flush=True)
-    else:
-        try:
-            print(f"[EXEC] HTTP POST -> {target_url} payload={payload}", flush=True)
-            response = requests.post(target_url, json=payload, timeout=5)
-            response.raise_for_status()
-            print(f"[EXEC] ✅ HTTP OK status={response.status_code} body={response.text[:200]}", flush=True)
-        except requests.RequestException as e:
-            print(f"[EXEC][ERROR] HTTP failed: {e}", flush=True)
-
-    try:
-        result = set_status_done_firebase(job_id)
-        print(f"[EXEC] Firestore status updated: {result}", flush=True)
+    try: 
+        response = requests.post(target_url, json=payload)
+        print(f"Sucessfully send to raspi | {response.status_code}")
     except Exception as e:
-        print(f"[EXEC][ERROR] Firestore update failed for {job_id}: {e}", flush=True)
+        print(e)
 
-    # Best-effort: remove APS job if it still exists (e.g., when executed by poller)
+def delete_schedule_by_id(aquarium_id: int, document_id: str):
+    """Delete a schedule in Firestore using document_id."""
     try:
-        if scheduler:
-            job = scheduler.get_job(job_id)
-            if job:
-                scheduler.remove_job(job_id)
-                print(f"[EXEC] Removed APS job {job_id} after execution", flush=True)
-            else:
-                print(f"[EXEC] No APS job {job_id} found to remove (may have been unscheduled or already removed)", flush=True)
-    except Exception as e:
-        print(f"[EXEC][WARN] Could not remove APS job {job_id}: {e}", flush=True)
+        get_ref = db.collection("Schedules").document(document_id)
+        doc = get_ref.get()
 
-    print(f"[EXEC] send_scheduled_raspi END — job_id={job_id}", flush=True)
-
-# ─────────────────────────────
-# 🔹 Mark Firestore schedule done
-# ─────────────────────────────
-def set_status_done_firebase(job_id: str):
-    doc_ref = db.collection("Schedules").document(job_id)
-    doc_ref.update({"status": "done"})
-    return f"{job_id} marked as done"
-
-# ─────────────────────────────
-# 🔹 Reschedule all pending jobs on startup
-# ─────────────────────────────
-def reschedule_all_jobs_from_firestore():
-    """Recreate all pending Firestore schedules after restart and execute missed ones."""
-    schedules_ref = db.collection("Schedules")
-    docs = schedules_ref.stream()
-
-    restored_count = skipped_duplicate = executed_past = 0
-    now = datetime.now(LOCAL_TZ)
-    print(f"[INIT] Rescheduling jobs... Local time: {now}")
-
-    for doc in docs:
-        data = doc.to_dict()
-        job_id = doc.id
-        aquarium_id = data.get("aquarium_id")
-        cycle = data.get("cycle", 1)
-        status = data.get("status", "pending")
-        schedule_field = data.get("schedule_time")
-
-        if status != "pending":
-            continue
-        if not schedule_field:
-            print(f"[SKIP] {job_id}: missing schedule_time")
-            continue
-
-        # Normalize schedule_time to LOCAL_TZ for APScheduler
-        if isinstance(schedule_field, str):
-            # Stored as local Manila string
-            try:
-                parsed_time = datetime.strptime(schedule_field, "%Y-%m-%d %H:%M:%S")
-                schedule_time_local = parsed_time.replace(tzinfo=LOCAL_TZ)
-            except Exception as e:
-                print(f"[ERROR] Failed to parse schedule_time for {job_id}: {e}")
-                continue
-        elif isinstance(schedule_field, datetime):
-            # Legacy: Firestore Timestamp (UTC)
-            schedule_time = schedule_field
-            if schedule_time.tzinfo is None:
-                schedule_time = schedule_time.replace(tzinfo=timezone.utc)
-            schedule_time_local = schedule_time.astimezone(LOCAL_TZ)
+        if doc.exists:
+            get_ref.delete()
+            logger.info(f" Schedule {document_id} deleted successfully for aquarium {aquarium_id}.")
+            return f"Schedule {document_id} deleted successfully."
         else:
-            print(f"[SKIP] {job_id}: unsupported schedule_time type {type(schedule_field)}")
-            continue
-
-        if schedule_time_local <= now:
-            # Execute missed pending job immediately
-            try:
-                print(f"[EXECUTE] Missed job {job_id} (scheduled {schedule_time_local}, now {now})")
-                send_scheduled_raspi(aquarium_id, cycle, job_id)
-                executed_past += 1
-            except Exception as e:
-                print(f"[ERROR] Failed executing missed job {job_id}: {e}")
-            continue
-
-        if scheduler.get_job(job_id):
-            skipped_duplicate += 1
-            print(f"[SKIP] Duplicate job {job_id}")
-            continue
-
-        run_date_utc = schedule_time_local.astimezone(timezone.utc)
-        scheduler.add_job(
-            func=send_scheduled_raspi,
-            trigger="date",
-            run_date=run_date_utc,
-            args=[aquarium_id, cycle, job_id],
-            id=job_id,
-            replace_existing=True,
-        )
-        restored_count += 1
-        print(f"[RESTORE] ✅ Job {job_id} scheduled for {schedule_time_local} (UTC {run_date_utc})")
-
-    print(
-        f"\n[RESULT] Rescheduling complete — "
-        f"{restored_count} restored, "
-        f"{executed_past} executed (past), "
-        f"{skipped_duplicate} skipped (duplicate)."
-    )
-
-# ─────────────────────────────
-# 🔹 Find & delete schedule by time (for API route compatibility)
-# ─────────────────────────────
-def find_schedule_by_time_and_aquarium(aquarium_id: int, schedule_time: str):
-    """Find a schedule document id by aquarium_id and schedule_time string (exact match)."""
-    docs = db.collection("Schedules").where("aquarium_id", "==", aquarium_id).where("schedule_time", "==", schedule_time).stream()
-    for doc in docs:
-        return doc.id
-    return None
-
-
-def delete_schedule_by_time(aquarium_id: int, schedule_time: str):
-    """Delete a schedule both from APScheduler and Firestore by local Manila time string."""
-    try:
-        print(f"[DELETE] Request to delete schedule aquarium_id={aquarium_id} schedule_time={schedule_time}", flush=True)
-        doc_id = find_schedule_by_time_and_aquarium(aquarium_id, schedule_time)
-        if not doc_id:
-            print(f"[DELETE] Not found for aquarium_id={aquarium_id} at {schedule_time}", flush=True)
-            return jsonify({"error": f"No schedule found for aquarium {aquarium_id} at {schedule_time}"}), 404
-
-        # Remove APScheduler job if it exists
-        if scheduler:
-            job = scheduler.get_job(doc_id)
-            if job:
-                scheduler.remove_job(doc_id)
-                print(f"[DELETE] Removed APS job {doc_id}")
-            else:
-                print(f"[DELETE] No APS job found for {doc_id}")
-
-        # Delete Firestore document
-        db.collection("Schedules").document(doc_id).delete()
-        print(f"[DELETE] Deleted Firestore document {doc_id}")
-
-        return jsonify({"message": f"Successfully deleted schedule for aquarium {aquarium_id} at {schedule_time}"}), 200
+            logger.warning(f" Schedule {document_id} not found for aquarium {aquarium_id}.")
+            return f"Schedule {document_id} not found."
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        logger.error(f" Failed to delete schedule {document_id} for aquarium {aquarium_id}: {e}")
+        return f"Error deleting schedule: {e}"
 
-# ─────────────────────────────
-# 🔹 Safety poller: execute any pending jobs that are due (fallback)
-# ─────────────────────────────
-def process_due_pending_jobs():
-    """Fallback guard: find pending schedules whose Manila time is <= now and execute them.
-
-    This ensures correctness if an APS 'date' job is missed due to infra nuances.
-    """
-    now_local = datetime.now(LOCAL_TZ)
-    now_str = now_local.strftime("%Y-%m-%d %H:%M:%S")
-
+def set_complete_task(document_id: str):
     try:
-        docs = db.collection("Schedules").where("status", "==", "pending").stream()
-        checked = 0
-        executed = 0
-        for doc in docs:
-            data = doc.to_dict()
-            job_id = doc.id
-            st = data.get("schedule_time")
-            aquarium_id = data.get("aquarium_id")
-            cycle = data.get("cycle", 1)
-            if not st or not aquarium_id:
-                continue
+        doc_ref = db.collection("Schedules").document(document_id)
 
-            checked += 1
-            # Lexicographic comparison works with 'YYYY-MM-DD HH:MM:SS'
-            if isinstance(st, str) and st <= now_str:
-                print(f"[POLL] Executing due job {job_id} (scheduled {st}, now {now_str})")
-                try:
-                    send_scheduled_raspi(aquarium_id, cycle, job_id)
-                    executed += 1
-                except Exception as e:
-                    print(f"[POLL][ERROR] Failed executing job {job_id}: {e}")
-        if checked:
-            print(f"[POLL] Checked {checked} pending; executed {executed} due jobs.")
+        if not doc_ref:
+            logger.error(f"{document_id} doesn't exist")
+            return f"{document_id} doesn't exist"
+        
+        doc_ref.update({
+            "status" : "done"
+        })
+
+        logger.info("Sucessfuly set the status to 'done'")
+        return "Sucessfuly set the status to 'done'"
     except Exception as e:
-        print(f"[POLL][ERROR] {e}")
+        logger.error(e)
+        return e
+
+def send_deletion_raspi(aquarium_id: int, document_id: str):
+    try:
+        url = f"https://pi-cam.alfreds.dev/{aquarium_id}/delete_task"
+        payload = {"aquarium_id": aquarium_id, "document_id": document_id}
+
+        try:
+            requests.post(url, json=payload)
+            logger.info("Sucessfuly Delete the Task in Raspi")
+            return "Sucessfuly Delete the Task in Raspi"
+        
+        except Exception as e:
+            logger.error(f"ERROR {e}")
+            return e
+    except Exception as e:
+        logger.error(f"ERROR {e}")
+        return e
+    
+def get_scheduler_aquarium(aquarium_id: int):
+   try:
+      docs = db.collection("Schedules").where("aquarium_id", "==", aquarium_id).where("status", "==", "pending").stream()
+      pending_schedule = [
+            {**doc.to_dict(), "document_id": doc.id} for doc in docs
+        ]
+
+      if not pending_schedule:
+        logger.info(f"No Pending Schedule is return for aquarium {aquarium_id}")
+        return f"No Pending Schedule is return for aquarium {aquarium_id}"
+       
+      logger.info("Pending schedules are extracted")
+      return pending_schedule
+   
+   except Exception as e:
+      logger.error(f"ERROR Something went wrong, {e}")
+      return e
+   
+   
+
+
+    
