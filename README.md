@@ -1,12 +1,14 @@
 # AquaCare: Smart Aquarium Monitoring System
 
-AquaCare is an intelligent aquarium monitoring system designed to keep your aquatic environment healthy and balanced. It continuously tracks essential parameters — pH, temperature, and turbidity — ensuring your fish always live in the best possible conditions.
+# **AquaCare**: Smart Aquarium Monitoring System
 
-Powered by a robust Flask backend, AquaCare seamlessly manages real-time telemetry through Firebase Realtime Database, automates feeding schedules via Firestore and APScheduler, and provides timely alerts using AquaNotifier, an AI-powered notification system enhanced with Machine Learning (Random Forest Regression) for predictive insights.
+**AquaCare** is an intelligent aquarium monitoring system designed to keep your aquatic environment healthy and balanced. It continuously tracks essential parameters — **pH**, **temperature**, and **turbidity** — ensuring your fish always live in the best possible conditions.
 
-The system also features AquaBot, an interactive AI chatbot that assists users with general aquarium inquiries, identifies fish species from uploaded images, and provides helpful care tips — making aquarium management smarter and more effortless.
+Powered by a robust **Flask backend**, **AquaCare** seamlessly manages real-time telemetry through **Firebase Realtime Database**, automates feeding schedules via **Firestore** and **APScheduler**, and provides timely alerts using **AquaNotifier**, an **AI-powered notification system** enhanced with **Machine Learning (Random Forest Regression)** for predictive insights.
 
-Additionally, AquaCare supports the dispatch of scheduled feeding commands to the Tank-Pi device, ensuring your fish are cared for even when you’re away.
+The system also features **AquaBot**, an interactive **AI chatbot** that assists users with general aquarium inquiries, identifies fish species from uploaded images, and provides helpful care tips — making aquarium management smarter and more effortless.
+
+Additionally, **AquaCare** supports the dispatch of scheduled feeding commands to the **Tank-Pi device**, ensuring your fish are cared for even when you’re away.
 ---
 
 ## Features
