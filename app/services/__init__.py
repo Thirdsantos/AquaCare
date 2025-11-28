@@ -1,9 +1,7 @@
 import os
 import json
 import firebase_admin
-from firebase_admin import credentials, db
-from .firebase import db, save_sensors, initialize_data_firebase, save_hourly, check_threshold
-
+from firebase_admin import credentials, db as firebase_db  # rename to avoid conflicts
 
 cred = None
 
@@ -39,4 +37,4 @@ if not firebase_admin._apps:
     })
 
 # Expose database instance
-db = db
+db = firebase_db
