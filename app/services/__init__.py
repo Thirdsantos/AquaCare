@@ -1,9 +1,9 @@
 import os
 import json
+import base64
 import firebase_admin
-from firebase_admin import credentials, db
+from firebase_admin import credentials
 from .firebase import db, save_sensors, initialize_data_firebase, save_hourly, check_threshold
-
 
 cred = None
 
@@ -12,15 +12,16 @@ if os.path.exists("firebase_key.json"):
     print("Using firebase_key.json from Secret Files")
     cred = credentials.Certificate("firebase_key.json")
 
-# 2️⃣ Check Environment Variable (e.g., from .env or Render env var)
-elif os.getenv("GOOGLE_FIREBASE_KEY"):
-    print("Using GOOGLE_FIREBASE_KEY from environment variable")
-    key_json = os.getenv("GOOGLE_FIREBASE_KEY").replace('\\n', '\n')  # fix escaped \n
+# 2️⃣ Check Base64 Environment Variable (safe for Render / GitHub secrets)
+elif os.getenv("GOOGLE_FIREBASE_KEY_B64"):
+    print("Using GOOGLE_FIREBASE_KEY_B64 from environment variable")
     try:
-        key_dict = json.loads(key_json)
+        # Decode the Base64 string
+        decoded_json = base64.b64decode(os.getenv("GOOGLE_FIREBASE_KEY_B64")).decode("utf-8")
+        key_dict = json.loads(decoded_json)
         cred = credentials.Certificate(key_dict)
-    except json.JSONDecodeError as e:
-        print(f"❌ JSON decode error in GOOGLE_FIREBASE_KEY: {e}")
+    except (json.JSONDecodeError, base64.binascii.Error) as e:
+        print(f"❌ Error decoding GOOGLE_FIREBASE_KEY_B64: {e}")
         exit()
 
 # 3️⃣ Check Local File (for development)
@@ -29,7 +30,7 @@ elif os.path.exists("firebase_key.json"):
     cred = credentials.Certificate("firebase_key.json")
 
 else:
-    print("❌ No Firebase credentials found (Secret File, Env, or Local).")
+    print("❌ No Firebase credentials found (Secret File, Base64 Env, or Local).")
     exit()
 
 # Initialize Firebase only once
