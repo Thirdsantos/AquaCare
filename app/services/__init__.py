@@ -17,7 +17,7 @@ elif os.getenv("GOOGLE_FIREBASE_KEY_B64"):
     print("Using GOOGLE_FIREBASE_KEY_B64 from environment variable")
     try:
         # Decode the Base64 string
-        decoded_json = base64.b64decode(os.getenv("GOOGLE_FIREBASE_KEY_B64")).decode("utf-8")
+        decoded_json = base64.b64decode(os.getenv("GOOGLE_FIREBASE_KEY")).decode("utf-8")
         key_dict = json.loads(decoded_json)
         cred = credentials.Certificate(key_dict)
     except (json.JSONDecodeError, base64.binascii.Error) as e:
