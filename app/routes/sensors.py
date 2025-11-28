@@ -1,5 +1,6 @@
 from flask import jsonify, Blueprint, request
 from app.services import db, save_sensors, initialize_data_firebase, save_hourly, check_threshold
+from app.services.firebase import FirebaseReference  
 
 
 sensors_bp = Blueprint("sensor", __name__)
