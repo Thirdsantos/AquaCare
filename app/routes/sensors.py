@@ -4,25 +4,21 @@ from app.services import db, save_sensors, initialize_data_firebase, save_hourly
 
 sensors_bp = Blueprint("sensor", __name__)
 
-@sensors_bp.route("/<int:aquarium_id>/sensors", methods = ["POST"])
+@sensors_bp.route("/<int:aquarium_id>/sensors", methods=["GET", "POST"])
 def sensors(aquarium_id):
-  """Ingest real-time sensor readings for an aquarium.
+    if request.method == "POST":
+        data = request.json
+        initialize_data_firebase(aquarium_id)
+        save_sensors(aquarium_id, data)
+        check_threshold(aquarium_id, data)
+        return jsonify({"Message": "Successfully received", "Data": data}), 200
 
-  Body JSON should include current readings (e.g., pH, temperature, turbidity).
-
-  Args:
-    aquarium_id (int): The aquarium identifier.
-
-  Returns:
-    Response: 200 JSON with acknowledgement and echoed data.
-  """
-  data = request.json
-  initialize_data_firebase(aquarium_id)
-  save_sensors(aquarium_id, data)
-  check_threshold(aquarium_id, data)
-
-  return jsonify({"Message" : "Successfully recieved",
-                  "Data" : data}), 200
+    elif request.method == "GET":
+        ref = FirebaseReference(aquarium_id)
+        sensors_data = ref.get_ref("sensors").get()  # Fetch the latest sensor readings
+        if not sensors_data:
+            return jsonify({"Message": "No sensor data found"}), 404
+        return jsonify({"Message": "Success", "Data": sensors_data}), 200
 
 @sensors_bp.route("/<int:aquarium_id>/hourly_log", methods = ["POST"])
 def hourly_log(aquarium_id):
