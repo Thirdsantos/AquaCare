@@ -4,6 +4,17 @@ import base64
 import firebase_admin
 from firebase_admin import credentials, db
 
+from .firebase import (
+    db,
+    save_sensors,
+    initialize_data_firebase,
+    save_hourly,
+    check_threshold
+)
+from .notification import send_fcm_notification, send_aquanotifier_notification
+from .ai import ask_gemini_suggestions_ml
+
+
 cred = None
 
 if os.getenv("GOOGLE_FIREBASE_KEY"):
